@@ -14,8 +14,8 @@
     },
     {
       "label": "Agents",
-      "value": "8",
-      "detail": "Eight specialist agents are mapped as requirements, not implemented services."
+      "value": "10",
+      "detail": "Ten agent roles are mapped as requirements, not implemented services."
     },
     {
       "label": "Ready",
@@ -26,18 +26,13 @@
       "label": "Decision Items",
       "value": "6",
       "detail": "These decisions should be frozen before core development begins."
-    },
-    {
-      "label": "Focus",
-      "value": "Manager",
-      "detail": "The Manager Agent is the control layer for routing, approvals, and schedule ownership."
     }
   ],
   "agents": [
     {
       "id": "manager",
       "agentName": "Aims Captain",
-      "name": "Agency Manager",
+      "name": "Manager",
       "owner": "Core System",
       "icon": "Workflow",
       "purpose": "Central dispatcher for requests, routing, approvals, schedules, and operational visibility.",
@@ -55,7 +50,7 @@
     {
       "id": "development",
       "agentName": "CodePilot",
-      "name": "Development",
+      "name": "Develop",
       "owner": "Delivery",
       "icon": "Code2",
       "purpose": "Builds web/app work, writes tests, opens pull requests, and prepares deployments.",
@@ -109,7 +104,7 @@
     {
       "id": "google-market",
       "agentName": "RankPilot",
-      "name": "Google Market",
+      "name": "Google",
       "owner": "Growth",
       "icon": "BarChart3",
       "purpose": "Handles SEO, Google Ads planning, keyword strategy, landing-page checks, and performance reports.",
@@ -127,7 +122,7 @@
     {
       "id": "social-market",
       "agentName": "SocialSpark",
-      "name": "Social Market",
+      "name": "Social",
       "owner": "Growth",
       "icon": "Megaphone",
       "purpose": "Creates platform-specific calendars, posts, hooks, campaigns, and approval-ready drafts.",
@@ -161,9 +156,27 @@
       "nextFocus": false
     },
     {
-      "id": "qa-governance",
+      "id": "support",
       "agentName": "TrustGuard",
-      "name": "QA and Governance",
+      "name": "Support",
+      "owner": "Client Success",
+      "icon": "ShieldCheck",
+      "purpose": "Handles client follow-ups, weekly summaries, support requests, and account health signals.",
+      "compact": "Client support, follow-ups, reports.",
+      "tools": ["Client notes", "Support inbox", "Reports", "Calendar"],
+      "requirements": ["Support request lifecycle", "Client health status", "Weekly summary template", "Escalation rules"],
+      "todos": ["Define client support statuses", "Create weekly support report outline", "Map escalation triggers"],
+      "risks": ["Client-facing messages need approval", "Support issues can hide delivery risks"],
+      "progress": 3,
+      "status": "pending",
+      "statusAction": "Define support lifecycle after Manager task states are connected.",
+      "priority": "P1",
+      "nextFocus": false
+    },
+    {
+      "id": "qa",
+      "agentName": "ProofLock",
+      "name": "QA",
       "owner": "Control",
       "icon": "ShieldCheck",
       "purpose": "Reviews output quality, factual accuracy, brand fit, permissions, and publish readiness.",
@@ -176,6 +189,24 @@
       "status": "pending",
       "statusAction": "Create the first cross-agent QA checklist before any publishing tools are connected.",
       "priority": "P0",
+      "nextFocus": false
+    },
+    {
+      "id": "accounts",
+      "agentName": "LedgerFlow",
+      "name": "Accounts",
+      "owner": "Finance",
+      "icon": "HandCoins",
+      "purpose": "Tracks invoices, retainers, subscriptions, payment follow-ups, and project profitability notes.",
+      "compact": "Invoices, payments, finance tracking.",
+      "tools": ["Invoice records", "Payment reminders", "Subscription list", "Profitability notes"],
+      "requirements": ["Invoice status flow", "Payment reminder rules", "Subscription tracker", "Finance approval boundaries"],
+      "todos": ["Define invoice statuses", "Create payment reminder template", "Map monthly account summary"],
+      "risks": ["Financial messages require approval", "Sensitive payment data must stay protected"],
+      "progress": 2,
+      "status": "pending",
+      "statusAction": "Define accounting workflow after core CRM and client records are selected.",
+      "priority": "P2",
       "nextFocus": false
     }
   ],

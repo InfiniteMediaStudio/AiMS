@@ -24,7 +24,6 @@ type Mode = "freeze" | "build" | "scale";
 
 type Agent = {
   id: string;
-  agentName: string;
   name: string;
   owner: string;
   icon: string;
@@ -196,6 +195,7 @@ function App() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [expandedAgents, setExpandedAgents] = useState<string[]>([]);
   const [expandedPhases, setExpandedPhases] = useState<string[]>([]);
+  const [workRoundOpen, setWorkRoundOpen] = useState(false);
 
   const allAgentsOpen = expandedAgents.length === agents.length;
   const allPhasesOpen = expandedPhases.length === phases.length;
@@ -223,13 +223,13 @@ function App() {
             <InfoTip text={roadmap.meta.currentState} align="left" />
           </div>
           <div className="toolbar">
-            <Pill className="tag-success">{roadmap.meta.version}</Pill>
-            <Pill className="tag-danger" tip={roadmap.meta.nextFocus}>
-              <Search className="icon-tiny" />
-            </Pill>
-            <button className="button" onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))} type="button">
+            <button
+              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              className="icon-button"
+              onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+              type="button"
+            >
               {theme === "dark" ? <Sun className="icon-small" /> : <Moon className="icon-small" />}
-              {theme === "dark" ? "Light" : "Dark"}
             </button>
           </div>
         </header>
@@ -262,7 +262,6 @@ function App() {
 
           <div className="list">
             <div className="table-head agent-head">
-              <span>Agent</span>
               <span>Role</span>
               <span>Status</span>
               <span>Priority</span>
@@ -274,7 +273,6 @@ function App() {
               return (
                 <article key={agent.id} className="list-item">
                   <button className="row-button agent-row" onClick={() => toggleAgent(agent.id)} type="button">
-                    <span className="agent-name">{agent.agentName}</span>
                     <span className="role-cell">
                       <span className="truncate">{agent.name}</span>
                       <InfoTip text={`${agent.compact} ${agent.purpose}`} align="left" />
@@ -450,30 +448,37 @@ function App() {
             </div>
 
             <div className="card pad">
-              <div className="detail-heading stack-heading">
-                <h2 className="heading">{workRound.title}</h2>
-                <InfoTip text={workRound.lastCompleted} />
-              </div>
-              <div className="work-flow">
-                <div>
-                  <span className="text-muted">Triggers</span>
-                  <ul className="stack-list compact">
-                    {workRound.triggerModes.map((mode) => (
-                      <li key={mode} className="text-muted">
-                        {mode}
-                      </li>
-                    ))}
-                  </ul>
+              <div className="collapse-heading stack-heading">
+                <div className="detail-heading">
+                  <h2 className="heading">{workRound.title}</h2>
+                  <InfoTip text={workRound.lastCompleted} />
                 </div>
-                <div>
-                  <span className="text-muted">Round steps</span>
-                  <ol className="work-steps">
-                    {workRound.steps.map((step) => (
-                      <li key={step}>{step}</li>
-                    ))}
-                  </ol>
-                </div>
+                <IconButton label={workRoundOpen ? "Collapse Codex Work Round" : "Expand Codex Work Round"} onClick={() => setWorkRoundOpen((open) => !open)}>
+                  <ChevronDown className={`icon-small ${workRoundOpen ? "rotate" : ""}`} />
+                </IconButton>
               </div>
+              {workRoundOpen ? (
+                <div className="work-flow">
+                  <div>
+                    <span className="text-muted">Triggers</span>
+                    <ul className="stack-list compact">
+                      {workRound.triggerModes.map((mode) => (
+                        <li key={mode} className="text-muted">
+                          {mode}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <span className="text-muted">Round steps</span>
+                    <ol className="work-steps">
+                      {workRound.steps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </aside>
         </section>

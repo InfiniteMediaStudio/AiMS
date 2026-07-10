@@ -74,7 +74,7 @@ select {
   }
 
   .header-card {
-    @apply flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between;
+    @apply flex flex-row items-center justify-between gap-3 p-4;
   }
 
   .title-group,
@@ -88,7 +88,7 @@ select {
   }
 
   .title-group {
-    @apply min-w-0 flex-wrap gap-3;
+    @apply min-w-0 flex-nowrap gap-3;
   }
 
   .section-title,
@@ -113,7 +113,7 @@ select {
   }
 
   .agent-head {
-    @apply lg:grid-cols-[150px_1fr_116px_96px_152px_28px];
+    @apply lg:grid-cols-[1fr_116px_96px_152px_28px];
   }
 
   .phase-head {
@@ -155,7 +155,7 @@ select {
   }
 
   .stats-grid {
-    @apply grid gap-2 px-3 py-2 sm:grid-cols-2 lg:grid-cols-5;
+    @apply grid grid-cols-2 gap-2 px-3 py-2 lg:grid-cols-4;
   }
 
   .stat {
@@ -171,23 +171,26 @@ select {
   }
 
   .row-button {
-    @apply grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-3 text-left font-normal transition hover:bg-[var(--hover)] sm:gap-3;
+    @apply grid w-full items-center gap-2 p-3 text-left font-normal transition hover:bg-[var(--hover)] sm:gap-3;
   }
 
   .agent-row {
-    @apply lg:grid-cols-[150px_1fr_116px_96px_152px_28px] lg:items-center;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    @apply lg:grid-cols-[1fr_116px_96px_152px_28px] lg:items-center;
   }
 
-  .agent-row > .role-cell,
   .agent-row > .progress-cell {
-    @apply col-span-2;
+    grid-column: 1 / -1;
   }
 
   .agent-row > .icon-muted {
-    @apply col-start-2 row-start-1 justify-self-end;
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
   }
 
   .phase-row {
+    grid-template-columns: minmax(0, 1fr) auto;
     @apply lg:grid-cols-[52px_1fr_108px_140px_28px] lg:items-center;
   }
 
@@ -209,6 +212,10 @@ select {
 
   .side-grid {
     @apply grid gap-4;
+  }
+
+  .collapse-heading {
+    @apply flex items-center justify-between gap-3;
   }
 
   .phase-detail {
@@ -278,7 +285,7 @@ select {
   }
 
   .stack-row {
-    @apply grid gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-2 sm:grid-cols-[1fr_92px_72px] sm:items-center;
+    @apply grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-2;
   }
 
   .tag-wrap,
