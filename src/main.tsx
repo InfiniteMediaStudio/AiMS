@@ -64,10 +64,29 @@ type Decision = {
   detail: string;
 };
 
+type WorkRound = {
+  title: string;
+  triggerModes: string[];
+  steps: string[];
+  lastCompleted: string;
+};
+
+type ManagerControlPlane = {
+  taskLifecycle: string[];
+  approvalMatrix: Array<{
+    action: string;
+    approval: string;
+    approver: string;
+  }>;
+  runLogFields: string[];
+};
+
 const agents = roadmap.agents as Agent[];
 const phases = roadmap.phases as Phase[];
 const stack = roadmap.stack as StackItem[];
 const decisions = roadmap.decisions as Decision[];
+const workRound = roadmap.workRound as WorkRound;
+const managerControlPlane = roadmap.managerControlPlane as ManagerControlPlane;
 
 const statusClasses: Record<Status, string> = {
   active: "tag-success",
@@ -292,6 +311,18 @@ function App() {
                             </span>
                           ))}
                         </div>
+                        {agent.id === "manager" ? (
+                          <div className="control-panel">
+                            <span className="text-muted">Lifecycle</span>
+                            <div className="tag-list">
+                              {managerControlPlane.taskLifecycle.map((state) => (
+                                <span key={state} className="tag tag-neutral">
+                                  {state}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                       <div>
                         <div className="detail-heading">
@@ -326,6 +357,18 @@ function App() {
                             </li>
                           ))}
                         </ul>
+                        {agent.id === "manager" ? (
+                          <div className="control-panel">
+                            <span className="text-muted">Run log</span>
+                            <div className="tag-list">
+                              {managerControlPlane.runLogFields.map((field) => (
+                                <span key={field} className="tag tag-neutral">
+                                  {field}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   )}
@@ -403,6 +446,33 @@ function App() {
                     <span className="count">{item.progress}%</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div className="card pad">
+              <div className="detail-heading stack-heading">
+                <h2 className="heading">{workRound.title}</h2>
+                <InfoTip text={workRound.lastCompleted} />
+              </div>
+              <div className="work-flow">
+                <div>
+                  <span className="text-muted">Triggers</span>
+                  <ul className="stack-list compact">
+                    {workRound.triggerModes.map((mode) => (
+                      <li key={mode} className="text-muted">
+                        {mode}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <span className="text-muted">Round steps</span>
+                  <ol className="work-steps">
+                    {workRound.steps.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
               </div>
             </div>
           </aside>

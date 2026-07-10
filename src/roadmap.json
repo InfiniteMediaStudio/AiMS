@@ -3,14 +3,14 @@
     "projectName": "AiMS",
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
-    "currentState": "Roadmap dashboard built; requirements freeze in progress; no production agents implemented yet.",
-    "nextFocus": "Freeze the Manager Agent task lifecycle and approval matrix before building the first runnable agent service."
+    "currentState": "Roadmap dashboard built; Manager Agent control-plane scope is now frozen; no production agents implemented yet.",
+    "nextFocus": "Build the first local Manager Agent prototype service after confirming OpenAI API credentials and backend choice."
   },
   "stats": [
     {
       "label": "Overall",
-      "value": "9%",
-      "detail": "Real progress based on completed project work: dashboard scaffold exists, but backend, agents, database, scheduler, and integrations are not built yet."
+      "value": "13%",
+      "detail": "Real progress based on completed project work: dashboard scaffold exists and Manager Agent control-plane scope is frozen, but backend, agents, database, scheduler, and integrations are not built yet."
     },
     {
       "label": "Agents",
@@ -43,12 +43,12 @@
       "purpose": "Central dispatcher for requests, routing, approvals, schedules, and operational visibility.",
       "compact": "Routes work and controls approvals.",
       "tools": ["Task DB", "Calendar", "CRM", "Approval queue"],
-      "requirements": ["Project/task lifecycle", "Role permissions", "Client context lookup", "Escalation rules"],
-      "todos": ["Freeze task statuses", "Define approval matrix", "Create run log schema"],
+      "requirements": ["Task lifecycle frozen", "Approval matrix frozen", "Run log shape frozen", "Client context lookup", "Escalation rules"],
+      "todos": ["Confirm backend language", "Create first local Manager Agent service", "Connect task lifecycle to persistent storage"],
       "risks": ["Too much autonomy before approvals are tested", "Unclear ownership between agents"],
-      "progress": 12,
-      "status": "in process",
-      "statusAction": "Finalize task lifecycle, approval matrix, and run log schema.",
+      "progress": 30,
+      "status": "ready",
+      "statusAction": "Next: build the local Manager Agent prototype after credential and backend confirmation.",
       "priority": "P0",
       "nextFocus": true
     },
@@ -184,10 +184,10 @@
       "number": "01",
       "title": "Requirement Freeze",
       "mode": "freeze",
-      "progress": 18,
-      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions.",
-      "todo": "Freeze MVP agents, statuses, approval matrix, and client knowledge shape.",
-      "statusAction": "Complete the requirements dashboard and decide the first agent build order."
+      "progress": 32,
+      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle and approval rules are now frozen.",
+      "todo": "Freeze client knowledge shape and backend choice.",
+      "statusAction": "Next: decide backend language and then start the Manager Agent prototype."
     },
     {
       "number": "02",
@@ -235,9 +235,9 @@
     },
     {
       "name": "OpenAI Agents SDK",
-      "status": "pending",
+      "status": "ready",
       "progress": 0,
-      "next": "Add when building the first Manager Agent prototype."
+      "next": "Use for the first Manager Agent prototype after API credentials are confirmed."
     },
     {
       "name": "PostgreSQL + pgvector",
@@ -259,11 +259,75 @@
     },
     {
       "name": "GitHub + Codex",
-      "status": "in process",
-      "progress": 20,
-      "next": "Commit the roadmap and begin branch-based changes."
+      "status": "active",
+      "progress": 70,
+      "next": "Use the work-round flow: update code, test, update roadmap, commit, push."
     }
   ],
+  "workRound": {
+    "title": "Codex Work Round",
+    "triggerModes": [
+      "Direct request: complete the requested roadmap or implementation task, even if it changes scope.",
+      "Next focus request: find the active nextFocus item, complete the highest-priority work it implies, then update roadmap state."
+    ],
+    "steps": [
+      "Read roadmap.json and current repository state.",
+      "Identify next focus by nextFocus=true, priority, statusAction, and Decisions Board state.",
+      "Implement the smallest useful work package.",
+      "Run build and browser checks until clean.",
+      "Update agent progress, phase progress, status, decisions, and the nextFocus item.",
+      "Commit and push to GitHub for deployment."
+    ],
+    "lastCompleted": "Frozen Manager Agent control-plane scope: task lifecycle, approval matrix, and run log fields."
+  },
+  "managerControlPlane": {
+    "taskLifecycle": [
+      "intake",
+      "triage",
+      "assigned",
+      "drafting",
+      "review",
+      "approval_required",
+      "approved",
+      "scheduled",
+      "done",
+      "blocked",
+      "archived"
+    ],
+    "approvalMatrix": [
+      {
+        "action": "Send client email",
+        "approval": "Required",
+        "approver": "Business owner or assigned account lead"
+      },
+      {
+        "action": "Publish social content",
+        "approval": "Required",
+        "approver": "Business owner or client-approved content lead"
+      },
+      {
+        "action": "Change ad budget",
+        "approval": "Required",
+        "approver": "Business owner only"
+      },
+      {
+        "action": "Deploy website or app",
+        "approval": "Required",
+        "approver": "Technical owner plus business owner"
+      },
+      {
+        "action": "Edit production client data",
+        "approval": "Required",
+        "approver": "Business owner"
+      },
+      {
+        "action": "Create drafts, reports, briefs, or internal tasks",
+        "approval": "Not required",
+        "approver": "System can proceed and log"
+      }
+    ],
+    "runLogFields": ["run_id", "request", "agent", "status", "tools_used", "approval_required", "decision", "output_link", "next_action", "timestamp"]
+  },
   "decisions": [
     {
       "label": "CRM choice",
@@ -272,13 +336,13 @@
     },
     {
       "label": "MVP agent order",
-      "status": "suggested",
-      "detail": "Suggested order: Agency Manager first, then Social Market and Sales. This gives routing, approvals, content planning, and lead workflow before deeper integrations."
+      "status": "decided",
+      "detail": "Decided. Build order starts with Agency Manager, then Social Market and Sales. This gives routing, approvals, content planning, and lead workflow before deeper integrations."
     },
     {
       "label": "Approval roles",
-      "status": "pending",
-      "detail": "Pending. Define who can approve client email, publishing, budget changes, deployment, and data edits. No agent should perform those actions without this matrix."
+      "status": "decided",
+      "detail": "Decided for MVP. Client email, publishing, ad budget changes, deployment, and production data edits require human approval. Drafts, reports, briefs, and internal task creation may proceed with logs."
     },
     {
       "label": "Client file schema",
@@ -288,7 +352,7 @@
     {
       "label": "Backend language",
       "status": "suggested",
-      "detail": "Suggested: Python FastAPI for the agent backend because the OpenAI Agents SDK workflow is strong there, while keeping the dashboard in React."
+      "detail": "Suggested: Python FastAPI for the agent backend because the OpenAI Agents SDK workflow is strong there, while keeping the dashboard in React. Needs your approval before implementation."
     },
     {
       "label": "Weekly reports",
