@@ -1,0 +1,390 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1217;
+  color: #eef1f4;
+  font-size: 14px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+[data-theme="dark"] {
+  --bg: #0f1217;
+  --panel: #171b22;
+  --panel-strong: #202631;
+  --subtle: #12161d;
+  --hover: #1d232d;
+  --line: #2a313c;
+  --text: #eef1f4;
+  --muted: #9ba6b4;
+  --track: #2b3340;
+}
+
+[data-theme="light"] {
+  --bg: #f4f0e9;
+  --panel: #fffaf2;
+  --panel-strong: #ffffff;
+  --subtle: #eee8dd;
+  --hover: #f8f2e8;
+  --line: #d8d1c4;
+  --text: #101318;
+  --muted: #616b78;
+  --track: #ddd5c8;
+}
+
+@layer components {
+  .app-shell {
+    @apply min-h-screen bg-[var(--bg)] text-[var(--text)];
+  }
+
+  .page {
+    @apply mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 lg:px-6;
+  }
+
+  .card {
+    @apply overflow-visible rounded-lg border border-[var(--line)] bg-[var(--panel)] shadow-soft;
+  }
+
+  .pad {
+    @apply p-4;
+  }
+
+  .header-card {
+    @apply flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between;
+  }
+
+  .title-group,
+  .section-title,
+  .toolbar,
+  .detail-heading,
+  .role-cell,
+  .progress-cell,
+  .list-line {
+    @apply flex items-center;
+  }
+
+  .title-group {
+    @apply min-w-0 flex-wrap gap-3;
+  }
+
+  .section-title,
+  .detail-heading {
+    @apply gap-2;
+  }
+
+  .role-cell {
+    @apply gap-2;
+  }
+
+  .toolbar {
+    @apply flex-wrap gap-2;
+  }
+
+  .section-header {
+    @apply flex flex-wrap items-center justify-between gap-3 border-b border-[var(--line)] p-4;
+  }
+
+  .table-head {
+    @apply hidden border-b border-[var(--line)] bg-[var(--subtle)] px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-[var(--muted)] lg:grid lg:items-center;
+  }
+
+  .agent-head {
+    @apply lg:grid-cols-[150px_1fr_116px_96px_152px_28px];
+  }
+
+  .phase-head {
+    @apply lg:grid-cols-[52px_1fr_108px_140px_28px];
+  }
+
+  .brand-mark {
+    @apply flex h-9 w-9 items-center justify-center rounded-md bg-mint text-ink;
+  }
+
+  .heading {
+    @apply m-0 text-[18px] font-medium leading-6;
+  }
+
+  .text {
+    @apply text-[14px] font-normal text-[var(--text)];
+  }
+
+  .text-muted {
+    @apply text-[14px] font-normal text-[var(--muted)];
+  }
+
+  .label {
+    @apply text-[14px] font-medium uppercase text-[var(--muted)];
+  }
+
+  .count,
+  .stat-value,
+  .agent-name {
+    @apply text-[14px] font-medium;
+  }
+
+  .stat-value {
+    @apply text-[18px];
+  }
+
+  .agent-name {
+    @apply min-w-0 truncate text-mint;
+  }
+
+  .stats-grid {
+    @apply grid gap-2 px-3 py-2 sm:grid-cols-2 lg:grid-cols-5;
+  }
+
+  .stat {
+    @apply flex min-h-10 min-w-0 items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3;
+  }
+
+  .list {
+    @apply divide-y divide-[var(--line)];
+  }
+
+  .list-item {
+    @apply bg-[var(--panel)];
+  }
+
+  .row-button {
+    @apply grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-3 text-left font-normal transition hover:bg-[var(--hover)] sm:gap-3;
+  }
+
+  .agent-row {
+    @apply lg:grid-cols-[150px_1fr_116px_96px_152px_28px] lg:items-center;
+  }
+
+  .agent-row > .role-cell,
+  .agent-row > .progress-cell {
+    @apply col-span-2;
+  }
+
+  .agent-row > .icon-muted {
+    @apply col-start-2 row-start-1 justify-self-end;
+  }
+
+  .phase-row {
+    @apply lg:grid-cols-[52px_1fr_108px_140px_28px] lg:items-center;
+  }
+
+  .phase-row > .progress-cell {
+    @apply col-span-2;
+  }
+
+  .phase-row > .icon-muted {
+    @apply col-start-2 row-start-1 justify-self-end;
+  }
+
+  .detail-grid {
+    @apply grid gap-4 border-t border-[var(--line)] bg-[var(--subtle)] p-4 lg:grid-cols-[1fr_1fr_1fr];
+  }
+
+  .main-grid {
+    @apply grid gap-4 lg:grid-cols-[1.25fr_0.75fr];
+  }
+
+  .side-grid {
+    @apply grid gap-4;
+  }
+
+  .phase-detail {
+    @apply grid gap-2 border-t border-[var(--line)] bg-[var(--subtle)] px-4 py-3 leading-6 text-[var(--muted)] md:grid-cols-[1fr_1fr];
+  }
+
+  .decision-header {
+    @apply mb-3 flex flex-wrap items-center justify-between gap-3;
+  }
+
+  .decision-board {
+    @apply grid gap-3 lg:grid-cols-3;
+  }
+
+  .decision-column {
+    @apply min-w-0 overflow-visible rounded-md border border-[var(--line)] bg-[var(--subtle)];
+  }
+
+  .decision-column-head {
+    @apply flex min-h-11 items-center gap-2 border-b border-[var(--line)] px-3 text-[14px] font-medium;
+  }
+
+  .decision-items {
+    @apply grid gap-2 p-3;
+  }
+
+  .decision-item {
+    @apply flex min-h-10 min-w-0 items-center justify-between gap-2 rounded-md border border-[var(--line)] bg-[var(--panel)] px-3 text-[14px] font-normal;
+  }
+
+  .decision-empty {
+    @apply rounded-md border border-dashed border-[var(--line)] px-3 py-3 text-[14px] font-normal text-[var(--muted)];
+  }
+
+  .tag-list,
+  .stack-list {
+    @apply grid gap-2;
+  }
+
+  .tag-list {
+    @apply flex flex-wrap;
+  }
+
+  .stack-list.compact {
+    @apply mt-3;
+  }
+
+  .stack-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .stack-heading {
+    @apply mb-3;
+  }
+
+  .stack-row {
+    @apply grid gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-2 sm:grid-cols-[1fr_92px_72px] sm:items-center;
+  }
+
+  .tag-wrap,
+  .tip-wrap {
+    @apply relative inline-flex;
+  }
+
+  .tag {
+    @apply inline-flex max-w-full items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-[12px] font-medium uppercase leading-none;
+  }
+
+  .tag-icon {
+    @apply h-6 w-6 justify-center px-0;
+  }
+
+  .tag-neutral {
+    @apply border-[var(--line)] bg-[var(--panel)] text-[var(--text)];
+  }
+
+  .tag-success {
+    @apply border-mint/40 bg-mint/10 text-mint;
+  }
+
+  .tag-info {
+    @apply border-ocean/40 bg-ocean/10 text-ocean;
+  }
+
+  .tag-warning {
+    @apply border-saffron/40 bg-saffron/10 text-saffron;
+  }
+
+  .tag-danger {
+    @apply border-coral/40 bg-coral/10 text-coral;
+  }
+
+  .tag-muted {
+    @apply border-white/10 bg-white/5 text-[var(--muted)];
+  }
+
+  .button {
+    @apply inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-md border border-[var(--line)] bg-[var(--panel-strong)] px-3 text-[12px] font-medium text-[var(--text)];
+  }
+
+  .icon-button {
+    @apply inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--muted)] transition hover:text-[var(--text)];
+  }
+
+  .tooltip,
+  .tag-tooltip {
+    @apply pointer-events-none absolute z-20 hidden rounded-md border border-[var(--line)] bg-[var(--panel-strong)] p-3 text-[14px] font-normal leading-5 text-[var(--text)] shadow-soft group-hover:block;
+  }
+
+  .tooltip {
+    @apply top-6 w-72;
+  }
+
+  .tooltip-left {
+    @apply left-0;
+  }
+
+  .tooltip-right {
+    @apply right-0;
+  }
+
+  .tag-tooltip {
+    @apply left-0 top-7 w-64 normal-case;
+  }
+
+  .progress-track {
+    @apply h-2 w-full overflow-hidden rounded-full bg-[var(--track)];
+  }
+
+  .progress-fill {
+    @apply h-full rounded-full bg-gradient-to-r from-mint via-saffron to-coral;
+  }
+
+  .icon {
+    @apply h-5 w-5;
+  }
+
+  .icon-small,
+  .icon-muted,
+  .icon-tiny {
+    @apply h-4 w-4;
+  }
+
+  .icon-tiny {
+    @apply h-3.5 w-3.5;
+  }
+
+  .icon-muted {
+    @apply text-[var(--muted)] transition;
+  }
+
+  .icon-accent {
+    @apply h-5 w-5 text-ocean;
+  }
+
+  .rotate {
+    @apply rotate-180;
+  }
+
+  .truncate {
+    @apply min-w-0 overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+}
+
+@media (min-width: 1024px) {
+  .agent-row > .role-cell,
+  .agent-row > .progress-cell,
+  .phase-row > .progress-cell {
+    grid-column: auto;
+  }
+
+  .agent-row > .icon-muted,
+  .phase-row > .icon-muted {
+    grid-column: auto;
+    grid-row: auto;
+    justify-self: auto;
+  }
+}

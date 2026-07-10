@@ -1,0 +1,299 @@
+{
+  "meta": {
+    "projectName": "AiMS",
+    "subtitle": "Roadmap",
+    "version": "Requirements v0.3",
+    "currentState": "Roadmap dashboard built; requirements freeze in progress; no production agents implemented yet.",
+    "nextFocus": "Freeze the Manager Agent task lifecycle and approval matrix before building the first runnable agent service."
+  },
+  "stats": [
+    {
+      "label": "Overall",
+      "value": "9%",
+      "detail": "Real progress based on completed project work: dashboard scaffold exists, but backend, agents, database, scheduler, and integrations are not built yet."
+    },
+    {
+      "label": "Agents",
+      "value": "8",
+      "detail": "Eight specialist agents are mapped as requirements, not implemented services."
+    },
+    {
+      "label": "Ready",
+      "value": "1",
+      "detail": "Only the roadmap dashboard is ready for review. Agent implementation is still pending."
+    },
+    {
+      "label": "Decision Items",
+      "value": "6",
+      "detail": "These decisions should be frozen before core development begins."
+    },
+    {
+      "label": "Focus",
+      "value": "Manager",
+      "detail": "The Manager Agent is the control layer for routing, approvals, and schedule ownership."
+    }
+  ],
+  "agents": [
+    {
+      "id": "manager",
+      "agentName": "Aims Captain",
+      "name": "Agency Manager",
+      "owner": "Core System",
+      "icon": "Workflow",
+      "purpose": "Central dispatcher for requests, routing, approvals, schedules, and operational visibility.",
+      "compact": "Routes work and controls approvals.",
+      "tools": ["Task DB", "Calendar", "CRM", "Approval queue"],
+      "requirements": ["Project/task lifecycle", "Role permissions", "Client context lookup", "Escalation rules"],
+      "todos": ["Freeze task statuses", "Define approval matrix", "Create run log schema"],
+      "risks": ["Too much autonomy before approvals are tested", "Unclear ownership between agents"],
+      "progress": 12,
+      "status": "in process",
+      "statusAction": "Finalize task lifecycle, approval matrix, and run log schema.",
+      "priority": "P0",
+      "nextFocus": true
+    },
+    {
+      "id": "development",
+      "agentName": "CodePilot",
+      "name": "Development",
+      "owner": "Delivery",
+      "icon": "Code2",
+      "purpose": "Builds web/app work, writes tests, opens pull requests, and prepares deployments.",
+      "compact": "Code, review, test, PR, deploy handoff.",
+      "tools": ["GitHub", "Codex", "Browser tests", "Deployment CLI"],
+      "requirements": ["Repo access", "Coding conventions", "Test command registry", "Deployment approval gate"],
+      "todos": ["Define PR template", "Map dev environments", "Add QA checklist"],
+      "risks": ["Production changes without review", "Client repo credentials must stay isolated"],
+      "progress": 4,
+      "status": "pending",
+      "statusAction": "Wait until core task and approval system is frozen, then design the GitHub workflow.",
+      "priority": "P1",
+      "nextFocus": false
+    },
+    {
+      "id": "design",
+      "agentName": "BrandSmith",
+      "name": "Design",
+      "owner": "Creative",
+      "icon": "Palette",
+      "purpose": "Produces UI directions, brand systems, campaign visuals, and handoff-ready creative briefs.",
+      "compact": "Brand, UI, layouts, creative systems.",
+      "tools": ["Figma-ready exports", "Image generation", "Asset library", "Brand memory"],
+      "requirements": ["Brand voice files", "Design token format", "Asset naming rules", "Review states"],
+      "todos": ["Define brand kit schema", "Create creative brief template", "Set visual QA rubric"],
+      "risks": ["Off-brand outputs", "Unlicensed assets entering client work"],
+      "progress": 4,
+      "status": "pending",
+      "statusAction": "Freeze the client brand kit schema after the Manager Agent requirements are stable.",
+      "priority": "P1",
+      "nextFocus": false
+    },
+    {
+      "id": "video",
+      "agentName": "ReelForge",
+      "name": "Video Production",
+      "owner": "Creative",
+      "icon": "Film",
+      "purpose": "Plans short-form and campaign video scripts, storyboards, captions, and edit briefs.",
+      "compact": "Scripts, hooks, storyboards, captions.",
+      "tools": ["Drive media", "Shot lists", "Caption library", "Storyboard templates"],
+      "requirements": ["Video formats", "Brand-safe claim rules", "Media storage paths", "Approval checkpoints"],
+      "todos": ["Define storyboard format", "Create caption variants", "List required source assets"],
+      "risks": ["Wrong claims in ad scripts", "Missing permissions for client media"],
+      "progress": 2,
+      "status": "pending",
+      "statusAction": "Keep planned until creative asset and approval structures are defined.",
+      "priority": "P2",
+      "nextFocus": false
+    },
+    {
+      "id": "google-market",
+      "agentName": "RankPilot",
+      "name": "Google Market",
+      "owner": "Growth",
+      "icon": "BarChart3",
+      "purpose": "Handles SEO, Google Ads planning, keyword strategy, landing-page checks, and performance reports.",
+      "compact": "SEO, Ads, keywords, analytics reports.",
+      "tools": ["GA4", "Search Console", "Google Ads exports", "Sheets import"],
+      "requirements": ["Analytics access", "Campaign budget rules", "Keyword taxonomy", "Report cadence"],
+      "todos": ["Choose reporting metrics", "Define budget-change approval", "Map client properties"],
+      "risks": ["Ad spend changes need strict permission", "Analytics data can be noisy or delayed"],
+      "progress": 3,
+      "status": "pending",
+      "statusAction": "Start with read-only reporting before any ad budget action is allowed.",
+      "priority": "P1",
+      "nextFocus": false
+    },
+    {
+      "id": "social-market",
+      "agentName": "SocialSpark",
+      "name": "Social Market",
+      "owner": "Growth",
+      "icon": "Megaphone",
+      "purpose": "Creates platform-specific calendars, posts, hooks, campaigns, and approval-ready drafts.",
+      "compact": "Content calendar and post drafts.",
+      "tools": ["Meta", "LinkedIn", "Scheduler", "Brand voice memory"],
+      "requirements": ["Platform list", "Posting cadence", "Approval workflow", "Voice rules"],
+      "todos": ["Build content calendar schema", "Define post status flow", "Create caption rubric"],
+      "risks": ["Publishing without approval", "Tone mismatch across clients"],
+      "progress": 6,
+      "status": "pending",
+      "statusAction": "Prepare as the first specialist after Manager because it gives fast agency value.",
+      "priority": "P0",
+      "nextFocus": false
+    },
+    {
+      "id": "sales",
+      "agentName": "DealFlow",
+      "name": "Sales",
+      "owner": "Revenue",
+      "icon": "HandCoins",
+      "purpose": "Researches leads, drafts outreach, prepares proposals, and keeps pipeline records current.",
+      "compact": "Lead research, outreach, proposals.",
+      "tools": ["CRM", "Email drafts", "Proposal templates", "Calendar"],
+      "requirements": ["ICP definitions", "Offer library", "Follow-up rules", "CRM fields"],
+      "todos": ["Freeze CRM choice", "Create proposal data model", "Define email approval rule"],
+      "risks": ["Outbound messages need approval", "Lead data must be sourced responsibly"],
+      "progress": 5,
+      "status": "pending",
+      "statusAction": "Choose the first CRM and map required pipeline fields.",
+      "priority": "P0",
+      "nextFocus": false
+    },
+    {
+      "id": "qa-governance",
+      "agentName": "TrustGuard",
+      "name": "QA and Governance",
+      "owner": "Control",
+      "icon": "ShieldCheck",
+      "purpose": "Reviews output quality, factual accuracy, brand fit, permissions, and publish readiness.",
+      "compact": "Final checks and risk control.",
+      "tools": ["Checklists", "Audit logs", "Policy rules", "Eval cases"],
+      "requirements": ["Review rubrics", "Forbidden actions", "Audit log schema", "Eval suite"],
+      "todos": ["Define universal QA checklist", "Create blocked-action registry", "Add eval cases"],
+      "risks": ["Weak governance makes every other agent unsafe", "Review rules can become too vague"],
+      "progress": 5,
+      "status": "pending",
+      "statusAction": "Create the first cross-agent QA checklist before any publishing tools are connected.",
+      "priority": "P0",
+      "nextFocus": false
+    }
+  ],
+  "phases": [
+    {
+      "number": "01",
+      "title": "Requirement Freeze",
+      "mode": "freeze",
+      "progress": 18,
+      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions.",
+      "todo": "Freeze MVP agents, statuses, approval matrix, and client knowledge shape.",
+      "statusAction": "Complete the requirements dashboard and decide the first agent build order."
+    },
+    {
+      "number": "02",
+      "title": "Independent Core",
+      "mode": "build",
+      "progress": 0,
+      "summary": "Build owned backend, database, scheduler, queue, and file/memory foundations.",
+      "todo": "Choose FastAPI vs Node and define database schema.",
+      "statusAction": "Start after requirements freeze."
+    },
+    {
+      "number": "03",
+      "title": "Agent MVP",
+      "mode": "build",
+      "progress": 0,
+      "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates.",
+      "todo": "Create first runnable Agents SDK service.",
+      "statusAction": "Start after the independent core exists."
+    },
+    {
+      "number": "04",
+      "title": "Delivery Agents",
+      "mode": "scale",
+      "progress": 0,
+      "summary": "Add Development, Design, Video, and Google Market workflows after the control layer works.",
+      "todo": "Define safe tool permissions per specialist.",
+      "statusAction": "Start after MVP agents are reliable."
+    },
+    {
+      "number": "05",
+      "title": "Agency OS",
+      "mode": "scale",
+      "progress": 0,
+      "summary": "Unify dashboards, reports, costs, schedules, evals, and role-based access.",
+      "todo": "Create production hardening checklist.",
+      "statusAction": "Start after core workflows are proven."
+    }
+  ],
+  "stack": [
+    {
+      "name": "React + Tailwind",
+      "status": "active",
+      "progress": 100,
+      "next": "Use this dashboard as the requirements surface."
+    },
+    {
+      "name": "OpenAI Agents SDK",
+      "status": "pending",
+      "progress": 0,
+      "next": "Add when building the first Manager Agent prototype."
+    },
+    {
+      "name": "PostgreSQL + pgvector",
+      "status": "pending",
+      "progress": 0,
+      "next": "Design schema after requirements freeze."
+    },
+    {
+      "name": "Redis or open-source queue",
+      "status": "pending",
+      "progress": 0,
+      "next": "Add for scheduled and background agent jobs."
+    },
+    {
+      "name": "Docker",
+      "status": "pending",
+      "progress": 0,
+      "next": "Use for local database and service orchestration."
+    },
+    {
+      "name": "GitHub + Codex",
+      "status": "in process",
+      "progress": 20,
+      "next": "Commit the roadmap and begin branch-based changes."
+    }
+  ],
+  "decisions": [
+    {
+      "label": "CRM choice",
+      "status": "pending",
+      "detail": "Pending. Choose the first CRM target before Sales Agent implementation. Recommended low-dependency path: start with a simple internal pipeline table, then connect HubSpot, Zoho, or Pipedrive only if needed."
+    },
+    {
+      "label": "MVP agent order",
+      "status": "suggested",
+      "detail": "Suggested order: Agency Manager first, then Social Market and Sales. This gives routing, approvals, content planning, and lead workflow before deeper integrations."
+    },
+    {
+      "label": "Approval roles",
+      "status": "pending",
+      "detail": "Pending. Define who can approve client email, publishing, budget changes, deployment, and data edits. No agent should perform those actions without this matrix."
+    },
+    {
+      "label": "Client file schema",
+      "status": "pending",
+      "detail": "Pending. Define the required client knowledge folders: brand, offers, services, assets, reports, meetings, approvals, and credentials references."
+    },
+    {
+      "label": "Backend language",
+      "status": "suggested",
+      "detail": "Suggested: Python FastAPI for the agent backend because the OpenAI Agents SDK workflow is strong there, while keeping the dashboard in React."
+    },
+    {
+      "label": "Weekly reports",
+      "status": "pending",
+      "detail": "Pending. Decide the first recurring report format: client summary, active tasks, wins, blockers, next-week plan, and metrics snapshot."
+    }
+  ]
+}

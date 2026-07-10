@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Aims: dev server",
+      "type": "shell",
+      "command": "npm.cmd run dev",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "Aims: build",
+      "type": "shell",
+      "command": "npm.cmd run build",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Aims: push to GitHub",
+      "type": "shell",
+      "command": "npm.cmd run github:push",
+      "problemMatcher": []
+    }
+  ]
+}
