@@ -117,7 +117,7 @@ select {
   }
 
   .phase-head {
-    @apply lg:grid-cols-[52px_1fr_108px_140px_28px];
+    @apply lg:grid-cols-[1fr_108px_64px_28px];
   }
 
   .brand-mark {
@@ -159,7 +159,11 @@ select {
   }
 
   .stat {
-    @apply flex min-h-10 min-w-0 items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3;
+    @apply flex min-h-10 min-w-0 items-center justify-between gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3;
+  }
+
+  .stat-label {
+    @apply flex min-w-0 items-center gap-2;
   }
 
   .list {
@@ -190,16 +194,20 @@ select {
   }
 
   .phase-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    @apply lg:grid-cols-[52px_1fr_108px_140px_28px] lg:items-center;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    @apply lg:grid-cols-[1fr_108px_64px_28px] lg:items-center;
   }
 
-  .phase-row > .progress-cell {
-    @apply col-span-2;
+  .phase-title-cell {
+    @apply flex min-w-0 items-center gap-3;
+  }
+
+  .phase-progress-bar {
+    @apply col-span-full;
   }
 
   .phase-row > .icon-muted {
-    @apply col-start-2 row-start-1 justify-self-end;
+    @apply justify-self-end;
   }
 
   .detail-grid {
@@ -222,8 +230,24 @@ select {
     @apply grid gap-2 border-t border-[var(--line)] bg-[var(--subtle)] px-4 py-3 leading-6 text-[var(--muted)] md:grid-cols-[1fr_1fr];
   }
 
-  .decision-header {
-    @apply mb-3 flex flex-wrap items-center justify-between gap-3;
+  .run-list {
+    @apply divide-y divide-[var(--line)];
+  }
+
+  .run-row {
+    @apply grid min-w-0 items-center gap-2 px-3 py-3 text-[14px] md:grid-cols-[minmax(0,1fr)_96px_116px_96px_72px_112px];
+  }
+
+  .run-main {
+    @apply grid min-w-0 gap-1;
+  }
+
+  .run-title-line {
+    @apply flex min-w-0 items-center gap-2;
+  }
+
+  .run-empty {
+    @apply px-4 py-4 text-[14px] text-[var(--muted)];
   }
 
   .decision-board {
@@ -269,7 +293,13 @@ select {
   }
 
   .stack-heading {
-    @apply mb-3;
+    @apply mb-0;
+  }
+
+  .stack-heading + .stack-list,
+  .stack-heading + .decision-board,
+  .stack-heading + .work-flow {
+    @apply mt-3;
   }
 
   .control-panel {
@@ -396,7 +426,7 @@ select {
 @media (min-width: 1024px) {
   .agent-row > .role-cell,
   .agent-row > .progress-cell,
-  .phase-row > .progress-cell {
+  .phase-row > .phase-progress-bar {
     grid-column: auto;
   }
 

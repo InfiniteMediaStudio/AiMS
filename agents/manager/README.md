@@ -32,3 +32,12 @@ Example POST body:
   "dryRun": true
 }
 ```
+
+## Persistent local store
+
+Every Manager Agent run now writes local JSON records to:
+
+- `agents/manager/data/tasks.json`
+- `agents/manager/data/runs.json`
+
+The latest five runs are mirrored to `src/manager-runs.json` so the roadmap dashboard can show recent Manager activity without requiring the local HTTP service to be running.

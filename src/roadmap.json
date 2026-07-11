@@ -3,8 +3,8 @@
     "projectName": "AiMS",
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
-    "currentState": "Roadmap dashboard built; Manager Agent control-plane scope is frozen; first local Manager Agent prototype now exists with dry-run, live OpenAI, and local service modes. Live OpenAI smoke test is blocked by API quota/billing.",
-    "nextFocus": "Connect Manager Agent runs to persistent task and run-log storage, then surface the latest runs in the dashboard."
+    "currentState": "Roadmap dashboard built; Manager Agent control-plane scope is frozen; local Manager Agent now persists task and run-log records and surfaces latest runs in the dashboard. Live OpenAI smoke test remains blocked by API quota/billing.",
+    "nextFocus": "Add first Manager Agent eval cases for routing and approval gates, then decide the first production persistence backend."
   },
   "stats": [
     {
@@ -39,11 +39,11 @@
       "compact": "Routes work and controls approvals.",
       "tools": ["Task DB", "Calendar", "CRM", "Approval queue"],
       "requirements": ["Task lifecycle frozen", "Approval matrix frozen", "Run log shape frozen", "Client context lookup", "Escalation rules"],
-      "todos": ["Connect task lifecycle to persistent storage", "Create run-log viewer for latest Manager Agent runs", "Add first eval cases for routing and approval gates"],
+      "todos": ["Add first eval cases for routing and approval gates", "Choose production persistence backend after file-store prototype", "Create run-log viewer filters for agent, status, and approval state"],
       "risks": ["Too much autonomy before approvals are tested", "Unclear ownership between agents"],
-      "progress": 48,
+      "progress": 58,
       "status": "active",
-      "statusAction": "Next: persist Manager Agent tasks and run logs, then show latest runs in the dashboard.",
+      "statusAction": "Next: add first eval cases for routing and approval gates, then choose the production persistence backend.",
       "priority": "P0",
       "nextFocus": true
     },
@@ -86,7 +86,7 @@
     {
       "id": "video",
       "agentName": "ReelForge",
-      "name": "Video Production",
+      "name": "Video",
       "owner": "Creative",
       "icon": "Film",
       "purpose": "Plans short-form and campaign video scripts, storyboards, captions, and edit briefs.",
@@ -215,27 +215,27 @@
       "number": "01",
       "title": "Requirement Freeze",
       "mode": "freeze",
-      "progress": 42,
-      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle, approval rules, and first prototype direction are now frozen.",
-      "todo": "Freeze client knowledge shape and first persistence schema.",
-      "statusAction": "Next: define the task and run-log tables for Manager Agent persistence."
+      "progress": 48,
+      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle, approval rules, first prototype direction, and local persistence shape are now frozen.",
+      "todo": "Add routing and approval eval cases.",
+      "statusAction": "Next: add first Manager Agent eval cases for routing and approval gates."
     },
     {
       "number": "02",
       "title": "Independent Core",
       "mode": "build",
-      "progress": 12,
-      "summary": "Build owned backend, database, scheduler, queue, and file/memory foundations. The first Node-based Manager Agent service scaffold is now implemented.",
-      "todo": "Define database schema for tasks, runs, approvals, and clients.",
-      "statusAction": "Next: add persistent storage for Manager Agent task and run logs."
+      "progress": 20,
+      "summary": "Build owned backend, database, scheduler, queue, and file/memory foundations. The first Node-based Manager Agent service scaffold and file-backed task/run persistence are now implemented.",
+      "todo": "Choose production database path after the local file-store prototype is validated.",
+      "statusAction": "Next: decide whether PostgreSQL becomes the first production persistence backend."
     },
     {
       "number": "03",
       "title": "Agent MVP",
       "mode": "build",
-      "progress": 10,
+      "progress": 14,
       "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates. Manager Agent MVP is now runnable locally.",
-      "todo": "Add eval cases and persist run logs before building specialist agents.",
+      "todo": "Add eval cases before building specialist agents.",
       "statusAction": "Continue Manager Agent hardening before Social and Sales implementation."
     },
     {
@@ -273,8 +273,8 @@
     {
       "name": "PostgreSQL + pgvector",
       "status": "pending",
-      "progress": 5,
-      "next": "Design task, run-log, approval, and client tables for Manager Agent persistence."
+      "progress": 10,
+      "next": "Local file-backed task and run-log persistence is implemented. Decide when to promote this schema to PostgreSQL."
     },
     {
       "name": "Redis or open-source queue",
@@ -309,7 +309,7 @@
       "Update agent progress, phase progress, status, decisions, and the nextFocus item.",
       "Commit and push to GitHub for deployment."
     ],
-    "lastCompleted": "Built first local Manager Agent prototype with dry-run routing, live OpenAI mode, and a local HTTP service."
+    "lastCompleted": "Connected Manager Agent dry-run/live paths to local task and run-log persistence, mirrored latest runs into the dashboard, and added persistence tests."
   },
   "managerControlPlane": {
     "taskLifecycle": [

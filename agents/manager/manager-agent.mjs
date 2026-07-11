@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { persistManagerRun } from "./manager-storage.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..", "..");
 const ROADMAP_PATH = resolve(ROOT, "src", "roadmap.json");
@@ -26,7 +27,7 @@ const APPROVAL_RULES = [
 
 export async function loadRoadmap() {
   const raw = await readFile(ROADMAP_PATH, "utf8");
-  return JSON.parse(raw);
+  return JSON.parse(raw.replace(/^\uFEFF/, ""));
 }
 
 export function buildManagerContext(roadmap) {
@@ -79,11 +80,11 @@ function matchesKeyword(keyword, lowerRequest, words) {
   return keyword.includes(" ") || keyword.includes("-") ? lowerRequest.includes(keyword) : words.has(keyword);
 }
 
-export async function runManagerAgent({ request, dryRun = false, model = process.env.OPENAI_MODEL ?? "gpt-5-mini" }) {
+export async function runManagerAgent({ request, dryRun = false, model = process.env.OPENAI_MODEL ?? "gpt-5-mini", persist = true }) {
   const roadmap = await loadRoadmap();
 
   if (dryRun) {
-    return createDryRunPlan(request, roadmap);
+    return withPersistence(createDryRunPlan(request, roadmap), persist);
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -120,14 +121,20 @@ export async function runManagerAgent({ request, dryRun = false, model = process
     throw new Error(message);
   }
 
-  return {
+  return withPersistence({
     mode: "live",
     request,
     model,
     responseId: body.id,
     outputText: body.output_text ?? extractOutputText(body),
     usage: body.usage,
-  };
+  }, persist);
+}
+
+async function withPersistence(result, persist) {
+  if (!persist) return result;
+  const persistence = await persistManagerRun(result);
+  return { ...result, persistence };
 }
 
 function extractOutputText(body) {
