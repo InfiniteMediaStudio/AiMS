@@ -82,7 +82,6 @@ select {
   .toolbar,
   .detail-heading,
   .role-cell,
-  .progress-cell,
   .list-line {
     @apply flex items-center;
   }
@@ -97,7 +96,7 @@ select {
   }
 
   .role-cell {
-    @apply gap-2;
+    @apply min-w-0 gap-3;
   }
 
   .toolbar {
@@ -112,10 +111,7 @@ select {
     @apply hidden border-b border-[var(--line)] bg-[var(--subtle)] px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-[var(--muted)] lg:grid lg:items-center;
   }
 
-  .agent-head {
-    @apply lg:grid-cols-[1fr_116px_96px_152px_28px];
-  }
-
+  .agent-head,
   .phase-head {
     @apply lg:grid-cols-[1fr_108px_64px_28px];
   }
@@ -180,11 +176,7 @@ select {
 
   .agent-row {
     grid-template-columns: minmax(0, 1fr) auto auto auto;
-    @apply lg:grid-cols-[1fr_116px_96px_152px_28px] lg:items-center;
-  }
-
-  .agent-row > .progress-cell {
-    grid-column: 1 / -1;
+    @apply lg:grid-cols-[1fr_108px_64px_28px] lg:items-center;
   }
 
   .agent-row > .icon-muted {
@@ -417,7 +409,7 @@ select {
 
 @media (min-width: 1024px) {
   .agent-row > .role-cell,
-  .agent-row > .progress-cell,
+  .agent-row > .phase-progress-bar,
   .phase-row > .phase-progress-bar {
     grid-column: auto;
   }

@@ -125,18 +125,6 @@ const modeClasses: Record<Mode, string> = {
   scale: "tag-success",
 };
 
-const priorityClasses: Record<Priority, string> = {
-  P0: "tag-danger",
-  P1: "tag-warning",
-  P2: "tag-info",
-};
-
-const priorityTips: Record<Priority, string> = {
-  P0: "Critical priority. Required for the MVP control layer or safe first launch.",
-  P1: "High priority. Build after P0 foundations are stable.",
-  P2: "Planned priority. Keep defined, but do not build before the core system is proven.",
-};
-
 const decisionClasses: Record<Decision["status"], string> = {
   pending: "tag-muted",
   suggested: "tag-info",
@@ -333,30 +321,27 @@ function App() {
             <div className="table-head agent-head">
               <span>Role</span>
               <span>Status</span>
-              <span>Priority</span>
-              <span>Progress</span>
+              <span>Count</span>
               <span />
             </div>
-            {agents.map((agent) => {
+            {agents.map((agent, index) => {
               const isOpen = expandedAgents.includes(agent.id);
               return (
                 <article key={agent.id} className="list-item">
                   <button className="row-button agent-row" onClick={() => toggleAgent(agent.id)} type="button">
                     <span className="role-cell">
+                      <span className="heading text-muted">{String(index + 1).padStart(2, "0")}</span>
                       <span className="truncate">{agent.name}</span>
                       <InfoTip text={`${agent.compact} ${agent.purpose}`} align="left" />
                     </span>
                     <Pill className={statusClasses[agent.status]} tip={agent.statusAction}>
                       {agent.status}
                     </Pill>
-                    <Pill className={priorityClasses[agent.priority]} tip={priorityTips[agent.priority]}>
-                      {agent.priority}
-                    </Pill>
-                    <span className="progress-cell">
-                      <span className="count">{agent.progress}%</span>
+                    <span className="count">{agent.progress}%</span>
+                    <ChevronDown className={`icon-muted ${isOpen ? "rotate" : ""}`} />
+                    <span className="phase-progress-bar">
                       <ProgressBar value={agent.progress} />
                     </span>
-                    <ChevronDown className={`icon-muted ${isOpen ? "rotate" : ""}`} />
                   </button>
 
                   {isOpen && (
