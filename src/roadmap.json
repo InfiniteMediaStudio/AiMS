@@ -4,7 +4,7 @@
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
     "currentState": "Cloud-first development is active. Vercel production is live, Supabase is connected to GitHub, the first versioned database migration is ready, and the frontend can load a hosted roadmap with a bundled fallback.",
-    "nextFocus": "Publish the Supabase migration and client integration, verify the GitHub integration applies the schema, then create the first hosted aims-roadmap document."
+    "nextFocus": "Verify the enabled Supabase production integration applies the versioned schema, then create the first hosted aims-roadmap document."
   },
   "stats": [
     {
