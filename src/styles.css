@@ -115,6 +115,10 @@ select {
     @apply min-h-10 min-w-0 flex-1 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 text-[14px] text-[var(--text)] outline-none focus:border-mint lg:w-64;
   }
 
+  .owner-textarea {
+    @apply min-h-24 resize-y py-2;
+  }
+
   .owner-button {
     @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-mint px-3 text-[13px] font-medium text-ink transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
   }

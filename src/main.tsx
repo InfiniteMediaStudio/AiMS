@@ -25,7 +25,9 @@ import roadmap from "./roadmap.json";
 import managerRunsData from "./manager-runs.json";
 import {
   getRoadmapSession,
+  createOnlineManagerRun,
   loadRoadmapDocument,
+  loadOnlineManagerRuns,
   saveRoadmapDocument,
   signInRoadmapOwner,
   signOutRoadmapOwner,
@@ -117,7 +119,7 @@ type ManagerControlPlane = {
 
 type RoadmapData = typeof roadmap;
 
-const managerRuns = managerRunsData as ManagerRun[];
+const initialManagerRuns = managerRunsData as ManagerRun[];
 
 function averageProgress(values: number[]) {
   if (values.length === 0) return 0;
@@ -248,6 +250,8 @@ function App() {
   const [ownerMessage, setOwnerMessage] = useState("");
   const [ownerBusy, setOwnerBusy] = useState(false);
   const [ownerModalOpen, setOwnerModalOpen] = useState(false);
+  const [managerRuns, setManagerRuns] = useState<ManagerRun[]>(initialManagerRuns);
+  const [managerRequest, setManagerRequest] = useState("");
 
   const agents = roadmapData.agents as Agent[];
   const phases = roadmapData.phases as Phase[];
@@ -279,6 +283,13 @@ function App() {
     return subscribeToRoadmapSession(setOwnerSession);
   }, []);
 
+  useEffect(() => {
+    if (!ownerSession) return;
+    loadOnlineManagerRuns<ManagerRun>(ownerSession.access_token)
+      .then((runs) => setManagerRuns(runs.length > 0 ? runs : initialManagerRuns))
+      .catch((error) => setOwnerMessage(error instanceof Error ? error.message : "Manager runs could not be loaded."));
+  }, [ownerSession]);
+
   const signInOwner = async (event: React.FormEvent) => {
     event.preventDefault();
     setOwnerBusy(true);
@@ -304,6 +315,23 @@ function App() {
       setOwnerMessage(`Roadmap saved online as version ${saved.version}.`);
     } catch (error) {
       setOwnerMessage(error instanceof Error ? error.message : "Roadmap could not be saved.");
+    } finally {
+      setOwnerBusy(false);
+    }
+  };
+
+  const runManagerDraft = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!ownerSession) return;
+    setOwnerBusy(true);
+    setOwnerMessage("");
+    try {
+      const run = await createOnlineManagerRun<ManagerRun>(managerRequest.trim(), ownerSession.access_token);
+      setManagerRuns((current) => [run, ...current.filter((item) => item.run_id !== run.run_id)].slice(0, 20));
+      setManagerRequest("");
+      setOwnerMessage(`Manager routed the request to ${run.agent}; status: ${run.status}.`);
+    } catch (error) {
+      setOwnerMessage(error instanceof Error ? error.message : "Manager request could not be created.");
     } finally {
       setOwnerBusy(false);
     }
@@ -372,24 +400,40 @@ function App() {
                 </IconButton>
               </div>
               {ownerSession ? (
-                <div className="owner-actions">
-                  <button className="owner-button" disabled={ownerBusy || hostedVersion === null} onClick={saveRoadmapOnline} type="button">
-                    <CloudUpload className="icon-small" />
-                    Save online
-                  </button>
-                  <button
-                    className="owner-button owner-button-muted"
-                    disabled={ownerBusy}
-                    onClick={async () => {
-                      await signOutRoadmapOwner();
-                      setOwnerModalOpen(false);
-                    }}
-                    type="button"
-                  >
-                    <LogOut className="icon-small" />
-                    Sign out
-                  </button>
-                </div>
+                <>
+                  <div className="owner-actions">
+                    <button className="owner-button" disabled={ownerBusy || hostedVersion === null} onClick={saveRoadmapOnline} type="button">
+                      <CloudUpload className="icon-small" />
+                      Save online
+                    </button>
+                    <button
+                      className="owner-button owner-button-muted"
+                      disabled={ownerBusy}
+                      onClick={async () => {
+                        await signOutRoadmapOwner();
+                        setOwnerModalOpen(false);
+                      }}
+                      type="button"
+                    >
+                      <LogOut className="icon-small" />
+                      Sign out
+                    </button>
+                  </div>
+                  <form className="admin-login-form" onSubmit={runManagerDraft}>
+                    <label className="admin-field">
+                      <span>Manager request</span>
+                      <textarea
+                        className="owner-input owner-textarea"
+                        maxLength={4000}
+                        onChange={(event) => setManagerRequest(event.target.value)}
+                        placeholder="Create an internal task draft…"
+                        required
+                        value={managerRequest}
+                      />
+                    </label>
+                    <button className="owner-button" disabled={ownerBusy} type="submit">Run safe draft</button>
+                  </form>
+                </>
               ) : (
                 <form className="admin-login-form" onSubmit={signInOwner}>
                   <label className="admin-field">

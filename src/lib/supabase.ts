@@ -78,3 +78,21 @@ export async function saveRoadmapDocument<T>(document: T, expectedVersion: numbe
   if (!response.ok) throw new Error(payload.error ?? "Roadmap update failed.");
   return payload.roadmap as { version: number; updated_at: string };
 }
+
+export async function loadOnlineManagerRuns<T>(accessToken: string): Promise<T[]> {
+  const response = await fetch("/api/manager", { headers: { authorization: `Bearer ${accessToken}` } });
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.error ?? "Manager runs could not be loaded.");
+  return payload.runs as T[];
+}
+
+export async function createOnlineManagerRun<T>(request: string, accessToken: string): Promise<T> {
+  const response = await fetch("/api/manager", {
+    method: "POST",
+    headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" },
+    body: JSON.stringify({ request }),
+  });
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.error ?? "Manager run could not be created.");
+  return payload.run as T;
+}
