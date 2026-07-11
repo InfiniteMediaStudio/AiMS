@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
+import type { Root } from "react-dom/client";
 import {
   CheckCircle2,
   ChevronsDownUp,
@@ -16,9 +17,16 @@ import {
 } from "lucide-react";
 import roadmap from "./roadmap.json";
 import managerRunsData from "./manager-runs.json";
+import { loadRoadmapDocument } from "./lib/supabase";
 import "./styles.css";
 
 type Theme = "dark" | "light";
+
+declare global {
+  interface Window {
+    __aimsRoot?: Root;
+  }
+}
 type Status = "active" | "ready" | "in process" | "pending" | "blocked";
 type Priority = "P0" | "P1" | "P2";
 type Mode = "freeze" | "build" | "scale";
@@ -93,12 +101,8 @@ type ManagerControlPlane = {
   runLogFields: string[];
 };
 
-const agents = roadmap.agents as Agent[];
-const phases = roadmap.phases as Phase[];
-const stack = roadmap.stack as StackItem[];
-const decisions = roadmap.decisions as Decision[];
-const workRound = roadmap.workRound as WorkRound;
-const managerControlPlane = roadmap.managerControlPlane as ManagerControlPlane;
+type RoadmapData = typeof roadmap;
+
 const managerRuns = managerRunsData as ManagerRun[];
 
 const statusClasses: Record<Status, string> = {
@@ -222,12 +226,33 @@ function IconButton({
 }
 
 function App() {
+  const [roadmapData, setRoadmapData] = useState<RoadmapData>(roadmap);
   const [theme, setTheme] = useState<Theme>("dark");
   const [expandedAgents, setExpandedAgents] = useState<string[]>([]);
   const [expandedPhases, setExpandedPhases] = useState<string[]>([]);
   const [stackOpen, setStackOpen] = useState(false);
   const [decisionsOpen, setDecisionsOpen] = useState(false);
+  const [managerRunsOpen, setManagerRunsOpen] = useState(false);
   const [workRoundOpen, setWorkRoundOpen] = useState(false);
+
+  const agents = roadmapData.agents as Agent[];
+  const phases = roadmapData.phases as Phase[];
+  const stack = roadmapData.stack as StackItem[];
+  const decisions = roadmapData.decisions as Decision[];
+  const workRound = roadmapData.workRound as WorkRound;
+  const managerControlPlane = roadmapData.managerControlPlane as ManagerControlPlane;
+
+  useEffect(() => {
+    let active = true;
+
+    loadRoadmapDocument<RoadmapData>("aims-roadmap").then((hostedRoadmap) => {
+      if (active && hostedRoadmap) setRoadmapData(hostedRoadmap);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const allAgentsOpen = expandedAgents.length === agents.length;
   const allPhasesOpen = expandedPhases.length === phases.length;
@@ -249,10 +274,10 @@ function App() {
               <Sparkles className="icon" />
             </span>
             <div>
-              <h1 className="heading">{roadmap.meta.projectName}</h1>
-              <p className="text-muted">{roadmap.meta.subtitle}</p>
+              <h1 className="heading">{roadmapData.meta.projectName}</h1>
+              <p className="text-muted">{roadmapData.meta.subtitle}</p>
             </div>
-            <InfoTip text={roadmap.meta.currentState} align="left" />
+            <InfoTip text={roadmapData.meta.currentState} align="left" />
           </div>
           <div className="toolbar">
             <button
@@ -267,7 +292,7 @@ function App() {
         </header>
 
         <section className="card stats-grid">
-          {roadmap.stats.map((stat) => (
+          {roadmapData.stats.map((stat) => (
             <div key={stat.label} className="stat">
               <span className="stat-label">
                 <span className="label truncate">{stat.label}</span>
@@ -410,42 +435,6 @@ function App() {
           </div>
         </section>
 
-
-        <section className="card">
-          <div className="section-header">
-            <div className="section-title">
-              <h2 className="heading">Latest Manager Runs</h2>
-            </div>
-            <div className="toolbar">
-              <Pill className="tag-info">{managerRuns.length}</Pill>
-              <InfoTip text="Latest local Manager Agent runs mirrored from the persistent task and run-log store." />
-            </div>
-          </div>
-          <div className="run-list">
-            {managerRuns.length > 0 ? (
-              managerRuns.map((run) => (
-                <article key={run.run_id} className="run-row">
-                  <div className="run-main">
-                    <div className="run-title-line">
-                      <span className="truncate">{run.request}</span>
-                      <InfoTip text={run.next_action} />
-                    </div>
-                    <span className="text-muted truncate">{run.run_id}</span>
-                  </div>
-                  <Pill className="tag-neutral">{run.agent}</Pill>
-                  <Pill className={runStatusClass(run.status)}>{run.status}</Pill>
-                  <Pill className={run.approval_required ? "tag-warning" : "tag-success"}>
-                    {run.approval_required ? "approval" : "logged"}
-                  </Pill>
-                  <span className="text-muted">{run.mode}</span>
-                  <span className="text-muted">{formatRunTime(run.timestamp)}</span>
-                </article>
-              ))
-            ) : (
-              <div className="run-empty">No Manager Agent runs logged yet.</div>
-            )}
-          </div>
-        </section>
         <section className="main-grid">
           <div className="card">
             <div className="section-header">
@@ -568,6 +557,45 @@ function App() {
         <section className="card pad">
           <div className="collapse-heading stack-heading">
             <div className="detail-heading">
+              <h2 className="heading">Latest Manager Runs</h2>
+              <Pill className="tag-info">{managerRuns.length}</Pill>
+              <InfoTip text="Latest Manager Agent runs mirrored from the persistent task and run-log store." />
+            </div>
+            <IconButton label={managerRunsOpen ? "Collapse Latest Manager Runs" : "Expand Latest Manager Runs"} onClick={() => setManagerRunsOpen((open) => !open)}>
+              <ChevronDown className={`icon-small ${managerRunsOpen ? "rotate" : ""}`} />
+            </IconButton>
+          </div>
+          {managerRunsOpen ? (
+            <div className="run-list">
+              {managerRuns.length > 0 ? (
+                managerRuns.map((run) => (
+                  <article key={run.run_id} className="run-row">
+                    <div className="run-main">
+                      <div className="run-title-line">
+                        <span className="truncate">{run.request}</span>
+                        <InfoTip text={run.next_action} />
+                      </div>
+                      <span className="text-muted truncate">{run.run_id}</span>
+                    </div>
+                    <Pill className="tag-neutral">{run.agent}</Pill>
+                    <Pill className={runStatusClass(run.status)}>{run.status}</Pill>
+                    <Pill className={run.approval_required ? "tag-warning" : "tag-success"}>
+                      {run.approval_required ? "approval" : "logged"}
+                    </Pill>
+                    <span className="text-muted">{run.mode}</span>
+                    <span className="text-muted">{formatRunTime(run.timestamp)}</span>
+                  </article>
+                ))
+              ) : (
+                <div className="run-empty">No Manager Agent runs logged yet.</div>
+              )}
+            </div>
+          ) : null}
+        </section>
+
+        <section className="card pad">
+          <div className="collapse-heading stack-heading">
+            <div className="detail-heading">
               <h2 className="heading">{workRound.title}</h2>
               <InfoTip text={workRound.lastCompleted} />
             </div>
@@ -603,4 +631,10 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(<App />);
+const rootElement = document.getElementById("root");
+
+if (!rootElement) throw new Error("AiMS root element was not found.");
+
+const root = window.__aimsRoot ?? ReactDOM.createRoot(rootElement);
+window.__aimsRoot = root;
+root.render(<App />);

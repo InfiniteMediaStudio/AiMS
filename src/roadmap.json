@@ -3,14 +3,14 @@
     "projectName": "AiMS",
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
-    "currentState": "Manager Agent local MVP is ready: scored routing, approval gates, persistence, run-log dashboard visibility, service inspection endpoints, and routing/approval evals are implemented. Live OpenAI smoke test remains blocked by API quota/billing.",
-    "nextFocus": "Unblock API billing/quota and run a live Manager Agent smoke test; if still blocked, start the Social Agent MVP on the Manager foundations."
+    "currentState": "Cloud-first development is active. Vercel production is live, Supabase is connected to GitHub, the first versioned database migration is ready, and the frontend can load a hosted roadmap with a bundled fallback.",
+    "nextFocus": "Publish the Supabase migration and client integration, verify the GitHub integration applies the schema, then create the first hosted aims-roadmap document."
   },
   "stats": [
     {
       "label": "Overall",
-      "value": "24%",
-      "detail": "Real progress based on completed project work: dashboard scaffold exists, Manager Agent local MVP now has routing, approval gates, persistence, run-log visibility, and eval coverage. Live OpenAI validation, scheduler, specialist agents, and integrations are still pending."
+      "value": "26%",
+      "detail": "The dashboard and Manager Agent local MVP exist, and the cloud rollout has started with GitHub as source of truth plus Codespaces and Vercel repository configuration. Hosted data, voice, and background execution remain pending."
     },
     {
       "label": "Agents",
@@ -63,7 +63,7 @@
       "status": "ready",
       "statusAction": "Local Manager MVP is ready. Next blocker: enable API billing/quota and run the live OpenAI smoke test.",
       "priority": "P0",
-      "nextFocus": true
+      "nextFocus": false
     },
     {
       "id": "development",
@@ -86,19 +86,19 @@
         "Deployment approval gate"
       ],
       "todos": [
-        "Define PR template",
-        "Map dev environments",
-        "Add QA checklist"
+        "Verify the Codespaces development container",
+        "Connect the private repository to Vercel and verify production deployment",
+        "Create the Supabase project and versioned migrations"
       ],
       "risks": [
         "Production changes without review",
         "Client repo credentials must stay isolated"
       ],
-      "progress": 4,
-      "status": "pending",
-      "statusAction": "Wait until core task and approval system is frozen, then design the GitHub workflow.",
-      "priority": "P1",
-      "nextFocus": false
+      "progress": 28,
+      "status": "in process",
+      "statusAction": "Active next focus: finish Supabase integration and move roadmap state into hosted storage.",
+      "priority": "P0",
+      "nextFocus": true
     },
     {
       "id": "design",
@@ -426,6 +426,51 @@
       "summary": "Unify dashboards, reports, costs, schedules, evals, and role-based access.",
       "todo": "Create production hardening checklist.",
       "statusAction": "Start after core workflows are proven."
+    },
+    {
+      "number": "06",
+      "title": "Cloud Workspace",
+      "mode": "build",
+      "progress": 75,
+      "summary": "The existing private GitHub repository is the source of truth, Codespaces configuration is present, CI validates cloud changes, and Vercel production deployment is working at https://ai-ms.vercel.app/.",
+      "todo": "Verify Codespaces from GitHub and complete Supabase integration before moving application state online.",
+      "statusAction": "Vercel deployment is live; Supabase is the active cloud setup step."
+    },
+    {
+      "number": "07",
+      "title": "Hosted Roadmap Data",
+      "mode": "build",
+      "progress": 48,
+      "summary": "Supabase is connected to GitHub. The first versioned migration defines public read-only roadmap storage and private Manager run audit storage, while the frontend supports hosted roadmap loading with a safe bundled fallback.",
+      "todo": "Publish the migration, verify it is applied by Supabase, and create the first hosted aims-roadmap document.",
+      "statusAction": "Schema and client integration are ready locally; publication and the first hosted document are next."
+    },
+    {
+      "number": "08",
+      "title": "Online Manager API",
+      "mode": "build",
+      "progress": 5,
+      "summary": "Move Manager Agent requests behind a hosted server API so reports and approved roadmap commands work without localhost.",
+      "todo": "Choose the Vercel Functions boundary, configure server-only secrets, and connect Manager runs to Supabase.",
+      "statusAction": "Starts after hosted roadmap data and environment secrets are available."
+    },
+    {
+      "number": "09",
+      "title": "Hold-to-Talk Voice",
+      "mode": "build",
+      "progress": 5,
+      "summary": "Add a press-and-hold microphone control, live transcript, spoken status reports, structured roadmap commands, and confirmations for consequential actions.",
+      "todo": "Implement a short-lived Realtime session endpoint and the browser microphone interaction after the hosted Manager API is available.",
+      "statusAction": "OpenAI project target is selected; repository-local secret placement still needs approval."
+    },
+    {
+      "number": "10",
+      "title": "Background Work",
+      "mode": "scale",
+      "progress": 0,
+      "summary": "Run bounded cloud tasks, scheduled status reports, CI checks, and approved maintenance while the owner's laptop is offline.",
+      "todo": "Define safe scheduled jobs and connect GitHub Actions or Codex cloud tasks with audit logs and approval gates.",
+      "statusAction": "Starts after online state, authentication, and command approvals are proven."
     }
   ],
   "stack": [
@@ -462,8 +507,26 @@
     {
       "name": "GitHub + Codex",
       "status": "active",
-      "progress": 70,
-      "next": "Use the work-round flow: update code, test, update roadmap, commit, push."
+      "progress": 78,
+      "next": "Private repository is selected; use Codespaces and the work-round flow for cloud development."
+    },
+    {
+      "name": "Vercel",
+      "status": "active",
+      "progress": 100,
+      "next": "Production deployment is live at https://ai-ms.vercel.app/ and follows the connected GitHub repository."
+    },
+    {
+      "name": "Supabase",
+      "status": "in process",
+      "progress": 48,
+      "next": "Publish and apply the initial migration, then seed the hosted aims-roadmap document and add authentication."
+    },
+    {
+      "name": "OpenAI Realtime API",
+      "status": "in process",
+      "progress": 5,
+      "next": "Add hold-to-talk after the hosted Manager API and server-only secret configuration are available."
     }
   ],
   "workRound": {
@@ -480,7 +543,7 @@
       "Update agent progress, phase progress, status, decisions, and the nextFocus item.",
       "Commit and push to GitHub for deployment."
     ],
-    "lastCompleted": "Added Manager routing/approval eval suite, upgraded routing to scored matching, exposed task/run inspection endpoints, and marked the local Manager MVP ready."
+    "lastCompleted": "Connected the Vite frontend to Supabase with environment-safe configuration and a bundled fallback, then added the first versioned roadmap and Manager audit migration with Row Level Security."
   },
   "managerControlPlane": {
     "taskLifecycle": [
