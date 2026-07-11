@@ -103,6 +103,34 @@ select {
     @apply flex-wrap gap-2;
   }
 
+  .owner-panel {
+    @apply grid items-center gap-3 lg:grid-cols-[minmax(0,1fr)_auto];
+  }
+
+  .owner-copy {
+    @apply grid min-w-0 gap-1;
+  }
+
+  .owner-actions {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .owner-input {
+    @apply min-h-10 min-w-0 flex-1 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 text-[14px] text-[var(--text)] outline-none focus:border-mint lg:w-64;
+  }
+
+  .owner-button {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-mint px-3 text-[13px] font-medium text-ink transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .owner-button-muted {
+    @apply border border-[var(--line)] bg-[var(--subtle)] text-[var(--text)];
+  }
+
+  .owner-message {
+    @apply text-[13px] text-saffron lg:col-span-full;
+  }
+
   .section-header {
     @apply flex flex-wrap items-center justify-between gap-3 border-b border-[var(--line)] p-4;
   }
