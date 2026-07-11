@@ -13,6 +13,7 @@
     "manager:eval": "node agents/manager/eval-manager.mjs",
     "manager:live": "node agents/manager/cli.mjs --json",
     "manager:serve": "node agents/manager/server.mjs",
+    "roadmap:seed-migration": "node scripts/generate-roadmap-seed.mjs",
     "github:push": "git push -u origin main"
   },
   "dependencies": {

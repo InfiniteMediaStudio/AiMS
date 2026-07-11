@@ -1,4 +1,7 @@
-{
+insert into public.roadmap_documents (slug, document, version)
+values (
+  'aims-roadmap',
+  $aims_roadmap${
   "meta": {
     "projectName": "AiMS",
     "subtitle": "Roadmap",
@@ -646,4 +649,9 @@
       "detail": "Decided. Use PostgreSQL + pgvector as the production persistence backend after the local file-backed task and run-log schema is validated. Keep the JSON file store as the local prototype and dashboard mirror."
     }
   ]
-}
+}$aims_roadmap$::jsonb,
+  1
+)
+on conflict (slug) do update
+set document = excluded.document,
+    version = public.roadmap_documents.version + 1;
