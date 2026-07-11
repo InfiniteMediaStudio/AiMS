@@ -543,7 +543,7 @@
       "Update agent progress, phase progress, status, decisions, and the nextFocus item.",
       "Commit and push to GitHub for deployment."
     ],
-    "lastCompleted": "Connected the Vite frontend to Supabase with environment-safe configuration and a bundled fallback, then added the first versioned roadmap and Manager audit migration with Row Level Security."
+    "lastCompleted": "Connected the Vite frontend to Supabase with a bundled fallback, added the first secured migration, and promoted Roadmap Phases and Independent Stack to full-width operational panels."
   },
   "managerControlPlane": {
     "taskLifecycle": [

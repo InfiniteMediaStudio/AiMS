@@ -435,8 +435,7 @@ function App() {
           </div>
         </section>
 
-        <section className="main-grid">
-          <div className="card">
+        <section className="card">
             <div className="section-header">
               <div className="section-title">
                 <h2 className="heading">Roadmap Phases</h2>
@@ -486,10 +485,9 @@ function App() {
                 );
               })}
             </div>
-          </div>
+        </section>
 
-          <aside className="side-grid">
-            <div className="card pad">
+        <section className="card pad">
               <div className="collapse-heading stack-heading">
                 <div className="detail-heading">
                   <h2 className="heading">Independent Stack</h2>
@@ -512,8 +510,6 @@ function App() {
                   ))}
                 </div>
               ) : null}
-            </div>
-          </aside>
         </section>
 
         <section className="card pad">
