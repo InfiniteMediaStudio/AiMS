@@ -3,14 +3,14 @@
     "projectName": "AiMS",
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
-    "currentState": "Roadmap dashboard built; Manager Agent control-plane scope is now frozen; no production agents implemented yet.",
-    "nextFocus": "Build the first local Manager Agent prototype service after confirming OpenAI API credentials and backend choice."
+    "currentState": "Roadmap dashboard built; Manager Agent control-plane scope is frozen; first local Manager Agent prototype now exists with dry-run, live OpenAI, and local service modes. Live OpenAI smoke test is blocked by API quota/billing.",
+    "nextFocus": "Connect Manager Agent runs to persistent task and run-log storage, then surface the latest runs in the dashboard."
   },
   "stats": [
     {
       "label": "Overall",
-      "value": "13%",
-      "detail": "Real progress based on completed project work: dashboard scaffold exists and Manager Agent control-plane scope is frozen, but backend, agents, database, scheduler, and integrations are not built yet."
+      "value": "20%",
+      "detail": "Real progress based on completed project work: dashboard scaffold exists, Manager Agent control-plane scope is frozen, and the first local Manager Agent prototype is implemented. Database, scheduler, specialist agents, and integrations are still pending."
     },
     {
       "label": "Agents",
@@ -19,13 +19,13 @@
     },
     {
       "label": "Ready",
-      "value": "1",
-      "detail": "Only the roadmap dashboard is ready for review. Agent implementation is still pending."
+      "value": "2",
+      "detail": "The roadmap dashboard is ready for review and the Manager Agent has a first runnable local prototype."
     },
     {
       "label": "Decision Items",
-      "value": "6",
-      "detail": "These decisions should be frozen before core development begins."
+      "value": "7",
+      "detail": "These decisions should be frozen before core development begins. API billing/quota is now tracked because live OpenAI calls reached the API but were rejected by current quota."
     }
   ],
   "agents": [
@@ -39,11 +39,11 @@
       "compact": "Routes work and controls approvals.",
       "tools": ["Task DB", "Calendar", "CRM", "Approval queue"],
       "requirements": ["Task lifecycle frozen", "Approval matrix frozen", "Run log shape frozen", "Client context lookup", "Escalation rules"],
-      "todos": ["Confirm backend language", "Create first local Manager Agent service", "Connect task lifecycle to persistent storage"],
+      "todos": ["Connect task lifecycle to persistent storage", "Create run-log viewer for latest Manager Agent runs", "Add first eval cases for routing and approval gates"],
       "risks": ["Too much autonomy before approvals are tested", "Unclear ownership between agents"],
-      "progress": 30,
-      "status": "ready",
-      "statusAction": "Next: build the local Manager Agent prototype after credential and backend confirmation.",
+      "progress": 48,
+      "status": "active",
+      "statusAction": "Next: persist Manager Agent tasks and run logs, then show latest runs in the dashboard.",
       "priority": "P0",
       "nextFocus": true
     },
@@ -215,28 +215,28 @@
       "number": "01",
       "title": "Requirement Freeze",
       "mode": "freeze",
-      "progress": 32,
-      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle and approval rules are now frozen.",
-      "todo": "Freeze client knowledge shape and backend choice.",
-      "statusAction": "Next: decide backend language and then start the Manager Agent prototype."
+      "progress": 42,
+      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle, approval rules, and first prototype direction are now frozen.",
+      "todo": "Freeze client knowledge shape and first persistence schema.",
+      "statusAction": "Next: define the task and run-log tables for Manager Agent persistence."
     },
     {
       "number": "02",
       "title": "Independent Core",
       "mode": "build",
-      "progress": 0,
-      "summary": "Build owned backend, database, scheduler, queue, and file/memory foundations.",
-      "todo": "Choose FastAPI vs Node and define database schema.",
-      "statusAction": "Start after requirements freeze."
+      "progress": 12,
+      "summary": "Build owned backend, database, scheduler, queue, and file/memory foundations. The first Node-based Manager Agent service scaffold is now implemented.",
+      "todo": "Define database schema for tasks, runs, approvals, and clients.",
+      "statusAction": "Next: add persistent storage for Manager Agent task and run logs."
     },
     {
       "number": "03",
       "title": "Agent MVP",
       "mode": "build",
-      "progress": 0,
-      "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates.",
-      "todo": "Create first runnable Agents SDK service.",
-      "statusAction": "Start after the independent core exists."
+      "progress": 10,
+      "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates. Manager Agent MVP is now runnable locally.",
+      "todo": "Add eval cases and persist run logs before building specialist agents.",
+      "statusAction": "Continue Manager Agent hardening before Social and Sales implementation."
     },
     {
       "number": "04",
@@ -265,16 +265,16 @@
       "next": "Use this dashboard as the requirements surface."
     },
     {
-      "name": "OpenAI Agents SDK",
-      "status": "ready",
-      "progress": 0,
-      "next": "Use for the first Manager Agent prototype after API credentials are confirmed."
+      "name": "OpenAI Responses API",
+      "status": "in process",
+      "progress": 20,
+      "next": "Manager Agent live mode is coded and reaches OpenAI, but live output is blocked until API quota or billing is enabled."
     },
     {
       "name": "PostgreSQL + pgvector",
       "status": "pending",
-      "progress": 0,
-      "next": "Design schema after requirements freeze."
+      "progress": 5,
+      "next": "Design task, run-log, approval, and client tables for Manager Agent persistence."
     },
     {
       "name": "Redis or open-source queue",
@@ -309,7 +309,7 @@
       "Update agent progress, phase progress, status, decisions, and the nextFocus item.",
       "Commit and push to GitHub for deployment."
     ],
-    "lastCompleted": "Frozen Manager Agent control-plane scope: task lifecycle, approval matrix, and run log fields."
+    "lastCompleted": "Built first local Manager Agent prototype with dry-run routing, live OpenAI mode, and a local HTTP service."
   },
   "managerControlPlane": {
     "taskLifecycle": [
@@ -382,13 +382,18 @@
     },
     {
       "label": "Backend language",
-      "status": "suggested",
-      "detail": "Suggested: Python FastAPI for the agent backend because the OpenAI Agents SDK workflow is strong there, while keeping the dashboard in React. Needs your approval before implementation."
+      "status": "decided",
+      "detail": "Decided. Use Node first because this machine already has Node and the roadmap dashboard is Vite/React. The Manager Agent can call the OpenAI Responses API directly now; Python/FastAPI can be added later only if a specialist workflow needs it."
     },
     {
       "label": "Weekly reports",
       "status": "pending",
       "detail": "Pending. Decide the first recurring report format: client summary, active tasks, wins, blockers, next-week plan, and metrics snapshot."
+    },
+    {
+      "label": "API billing quota",
+      "status": "pending",
+      "detail": "Pending. Live OpenAI smoke test reached the API but returned a current quota/billing error. Enable API billing or adjust usage limits before live agent runs can complete."
     }
   ]
 }
