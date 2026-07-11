@@ -103,10 +103,6 @@ select {
     @apply flex-wrap gap-2;
   }
 
-  .owner-panel {
-    @apply grid items-center gap-3 lg:grid-cols-[minmax(0,1fr)_auto];
-  }
-
   .owner-copy {
     @apply grid min-w-0 gap-1;
   }
@@ -128,7 +124,31 @@ select {
   }
 
   .owner-message {
-    @apply text-[13px] text-saffron lg:col-span-full;
+    @apply text-[13px] text-saffron;
+  }
+
+  .icon-button-active {
+    @apply border-mint text-mint;
+  }
+
+  .admin-modal-backdrop {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-ink/80 p-4 backdrop-blur-sm;
+  }
+
+  .admin-modal {
+    @apply grid w-full max-w-md gap-4 p-4 shadow-2xl;
+  }
+
+  .admin-modal-header {
+    @apply flex items-start justify-between gap-3;
+  }
+
+  .admin-login-form {
+    @apply grid gap-3;
+  }
+
+  .admin-field {
+    @apply grid gap-1 text-[13px] font-medium text-[var(--muted)];
   }
 
   .section-header {

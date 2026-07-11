@@ -67,7 +67,7 @@ ROADMAP_ADMIN_EMAILS=owner@example.com
 
 The API verifies the caller's Supabase access token, requires their email in `ROADMAP_ADMIN_EMAILS`, and uses optimistic version checks to prevent overwriting newer roadmap changes.
 
-Set the Supabase Auth Site URL to `https://ai-ms.vercel.app` and add `http://127.0.0.1:5173/**` as a local redirect URL. The Owner Access panel sends a passwordless email link, restores the Supabase session after redirect, and exposes version-checked online saving only to authenticated users allowed by the server.
+The user icon opens an Admin Access modal that signs in with an email/password account stored in Supabase Auth. The frontend never contains hardcoded credentials. After Supabase verifies the account, the server still requires its email in `ROADMAP_ADMIN_EMAILS` before allowing version-checked online saving.
 
 ## Cloud Rollout Order
 

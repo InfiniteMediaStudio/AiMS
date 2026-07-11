@@ -53,12 +53,9 @@ export function subscribeToRoadmapSession(onSession: (session: Session | null) =
   return () => data.subscription.unsubscribe();
 }
 
-export async function sendRoadmapSignInLink(email: string) {
+export async function signInRoadmapOwner(email: string, password: string) {
   if (!supabase) throw new Error("Supabase is not configured.");
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: window.location.origin },
-  });
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
 }
 

@@ -18,6 +18,8 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
+  UserRound,
+  X,
 } from "lucide-react";
 import roadmap from "./roadmap.json";
 import managerRunsData from "./manager-runs.json";
@@ -25,7 +27,7 @@ import {
   getRoadmapSession,
   loadRoadmapDocument,
   saveRoadmapDocument,
-  sendRoadmapSignInLink,
+  signInRoadmapOwner,
   signOutRoadmapOwner,
   subscribeToRoadmapSession,
 } from "./lib/supabase";
@@ -242,8 +244,10 @@ function App() {
   const [hostedVersion, setHostedVersion] = useState<number | null>(null);
   const [ownerSession, setOwnerSession] = useState<Session | null>(null);
   const [ownerEmail, setOwnerEmail] = useState("");
+  const [ownerPassword, setOwnerPassword] = useState("");
   const [ownerMessage, setOwnerMessage] = useState("");
   const [ownerBusy, setOwnerBusy] = useState(false);
+  const [ownerModalOpen, setOwnerModalOpen] = useState(false);
 
   const agents = roadmapData.agents as Agent[];
   const phases = roadmapData.phases as Phase[];
@@ -275,13 +279,14 @@ function App() {
     return subscribeToRoadmapSession(setOwnerSession);
   }, []);
 
-  const sendOwnerLink = async (event: React.FormEvent) => {
+  const signInOwner = async (event: React.FormEvent) => {
     event.preventDefault();
     setOwnerBusy(true);
     setOwnerMessage("");
     try {
-      await sendRoadmapSignInLink(ownerEmail.trim());
-      setOwnerMessage("Check your email for the secure sign-in link.");
+      await signInRoadmapOwner(ownerEmail.trim(), ownerPassword);
+      setOwnerPassword("");
+      setOwnerMessage("Admin sign-in successful.");
     } catch (error) {
       setOwnerMessage(error instanceof Error ? error.message : "Sign-in link could not be sent.");
     } finally {
@@ -331,6 +336,17 @@ function App() {
           </div>
           <div className="toolbar">
             <button
+              aria-label={ownerSession ? "Open admin account" : "Admin login"}
+              className={`icon-button ${ownerSession ? "icon-button-active" : ""}`}
+              onClick={() => {
+                setOwnerMessage("");
+                setOwnerModalOpen(true);
+              }}
+              type="button"
+            >
+              <UserRound className="icon-small" />
+            </button>
+            <button
               aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
               className="icon-button"
               onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
@@ -340,6 +356,74 @@ function App() {
             </button>
           </div>
         </header>
+
+        {ownerModalOpen ? (
+          <div className="admin-modal-backdrop" role="presentation">
+            <section aria-labelledby="admin-login-title" aria-modal="true" className="admin-modal card" role="dialog">
+              <div className="admin-modal-header">
+                <div className="owner-copy">
+                  <h2 className="heading" id="admin-login-title">Admin Access</h2>
+                  <span className="text-muted">
+                    {ownerSession?.user.email ?? "Sign in with the admin account stored securely in Supabase Auth."}
+                  </span>
+                </div>
+                <IconButton label="Close admin login" onClick={() => setOwnerModalOpen(false)}>
+                  <X className="icon-small" />
+                </IconButton>
+              </div>
+              {ownerSession ? (
+                <div className="owner-actions">
+                  <button className="owner-button" disabled={ownerBusy || hostedVersion === null} onClick={saveRoadmapOnline} type="button">
+                    <CloudUpload className="icon-small" />
+                    Save online
+                  </button>
+                  <button
+                    className="owner-button owner-button-muted"
+                    disabled={ownerBusy}
+                    onClick={async () => {
+                      await signOutRoadmapOwner();
+                      setOwnerModalOpen(false);
+                    }}
+                    type="button"
+                  >
+                    <LogOut className="icon-small" />
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <form className="admin-login-form" onSubmit={signInOwner}>
+                  <label className="admin-field">
+                    <span>Email</span>
+                    <input
+                      autoComplete="username"
+                      className="owner-input"
+                      onChange={(event) => setOwnerEmail(event.target.value)}
+                      required
+                      type="email"
+                      value={ownerEmail}
+                    />
+                  </label>
+                  <label className="admin-field">
+                    <span>Password</span>
+                    <input
+                      autoComplete="current-password"
+                      className="owner-input"
+                      onChange={(event) => setOwnerPassword(event.target.value)}
+                      required
+                      type="password"
+                      value={ownerPassword}
+                    />
+                  </label>
+                  <button className="owner-button" disabled={ownerBusy} type="submit">
+                    <LogIn className="icon-small" />
+                    Sign in as admin
+                  </button>
+                </form>
+              )}
+              {ownerMessage ? <span className="owner-message">{ownerMessage}</span> : null}
+            </section>
+          </div>
+        ) : null}
 
         <section className="card stats-grid">
           {roadmapData.stats.map((stat) => (
@@ -351,44 +435,6 @@ function App() {
               <span className="stat-value">{stat.value}</span>
             </div>
           ))}
-        </section>
-
-        <section className="card pad owner-panel">
-          <div className="owner-copy">
-            <span className="heading">Owner Access</span>
-            <span className="text-muted">
-              {ownerSession?.user.email ?? "Sign in to save approved roadmap changes directly to Supabase."}
-            </span>
-          </div>
-          {ownerSession ? (
-            <div className="owner-actions">
-              <button className="owner-button" disabled={ownerBusy || hostedVersion === null} onClick={saveRoadmapOnline} type="button">
-                <CloudUpload className="icon-small" />
-                Save online
-              </button>
-              <button className="owner-button owner-button-muted" disabled={ownerBusy} onClick={() => signOutRoadmapOwner()} type="button">
-                <LogOut className="icon-small" />
-                Sign out
-              </button>
-            </div>
-          ) : (
-            <form className="owner-actions" onSubmit={sendOwnerLink}>
-              <input
-                aria-label="Owner email"
-                className="owner-input"
-                onChange={(event) => setOwnerEmail(event.target.value)}
-                placeholder="Owner email"
-                required
-                type="email"
-                value={ownerEmail}
-              />
-              <button className="owner-button" disabled={ownerBusy} type="submit">
-                <LogIn className="icon-small" />
-                Send sign-in link
-              </button>
-            </form>
-          )}
-          {ownerMessage ? <span className="owner-message">{ownerMessage}</span> : null}
         </section>
 
         <section className="card">
