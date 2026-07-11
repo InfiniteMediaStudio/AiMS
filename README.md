@@ -1,4 +1,4 @@
-# Aims Roadmap
+# AiMS Roadmap
 
 Aims means AI + IMS, Infinite Media Studio.
 
