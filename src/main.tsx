@@ -57,6 +57,7 @@ type Phase = {
   summary: string;
   todo: string;
   statusAction: string;
+  nextFocus?: boolean;
 };
 
 type StackItem = {
@@ -104,6 +105,11 @@ type ManagerControlPlane = {
 type RoadmapData = typeof roadmap;
 
 const managerRuns = managerRunsData as ManagerRun[];
+
+function averageProgress(values: number[]) {
+  if (values.length === 0) return 0;
+  return Math.round(values.reduce((total, value) => total + value, 0) / values.length);
+}
 
 const statusClasses: Record<Status, string> = {
   active: "tag-success",
@@ -241,6 +247,9 @@ function App() {
   const decisions = roadmapData.decisions as Decision[];
   const workRound = roadmapData.workRound as WorkRound;
   const managerControlPlane = roadmapData.managerControlPlane as ManagerControlPlane;
+  const agentCompletion = averageProgress(agents.map((agent) => agent.progress));
+  const phaseCompletion = averageProgress(phases.map((phase) => phase.progress));
+  const stackCompletion = averageProgress(stack.map((item) => item.progress));
 
   useEffect(() => {
     let active = true;
@@ -307,6 +316,7 @@ function App() {
           <div className="section-header">
             <div className="section-title">
               <h2 className="heading">Aims Agents</h2>
+              <Pill className="tag-info">{agentCompletion}% total</Pill>
             </div>
             <div className="toolbar">
               <InfoTip text="Each row keeps one-line operational data. The agent info icon carries the extra tagline and context. Status tags show my suggested next action on hover." />
@@ -335,11 +345,6 @@ function App() {
                     <span className="role-cell">
                       <span className="truncate">{agent.name}</span>
                       <InfoTip text={`${agent.compact} ${agent.purpose}`} align="left" />
-                      {agent.nextFocus ? (
-                        <Pill className="tag-danger tag-icon" tip={agent.statusAction}>
-                          <Search className="icon-tiny" />
-                        </Pill>
-                      ) : null}
                     </span>
                     <Pill className={statusClasses[agent.status]} tip={agent.statusAction}>
                       {agent.status}
@@ -439,6 +444,7 @@ function App() {
             <div className="section-header">
               <div className="section-title">
                 <h2 className="heading">Roadmap Phases</h2>
+                <Pill className="tag-info">{phaseCompletion}% total</Pill>
               </div>
               <div className="toolbar">
                 <InfoTip text="Phases are compact by default. Hover status tags for my suggested next action, or expand rows for the working summary." />
@@ -465,6 +471,11 @@ function App() {
                       <span className="phase-title-cell">
                         <span className="heading text-muted">{phase.number}</span>
                         <span className="truncate">{phase.title}</span>
+                        {phase.nextFocus ? (
+                          <Pill className="tag-danger tag-icon" tip={phase.statusAction}>
+                            <Search className="icon-tiny" />
+                          </Pill>
+                        ) : null}
                       </span>
                       <Pill className={modeClasses[phase.mode]} tip={phase.statusAction}>
                         {phase.mode}
@@ -491,6 +502,7 @@ function App() {
               <div className="collapse-heading stack-heading">
                 <div className="detail-heading">
                   <h2 className="heading">Independent Stack</h2>
+                  <Pill className="tag-info">{stackCompletion}% total</Pill>
                   <InfoTip text="Each stack item now carries its actual setup status. Only the current frontend layer is active today." />
                 </div>
                 <IconButton label={stackOpen ? "Collapse Independent Stack" : "Expand Independent Stack"} onClick={() => setStackOpen((open) => !open)}>

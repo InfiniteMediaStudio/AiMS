@@ -54,6 +54,19 @@ The initial schema provides a publicly readable `roadmap_documents` table and a 
 
 Never expose the Supabase secret key, service-role key, database password, connection string, or `OPENAI_API_KEY` through a `VITE_` variable.
 
+### Authenticated roadmap API
+
+`api/roadmap.ts` provides an authenticated Vercel Function for controlled roadmap reads and version-checked updates. Configure these as server-only Vercel variables:
+
+```env
+SUPABASE_URL=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
+ROADMAP_ADMIN_EMAILS=owner@example.com
+```
+
+The API verifies the caller's Supabase access token, requires their email in `ROADMAP_ADMIN_EMAILS`, and uses optimistic version checks to prevent overwriting newer roadmap changes.
+
 ## Cloud Rollout Order
 
 1. Verify GitHub Codespaces.
