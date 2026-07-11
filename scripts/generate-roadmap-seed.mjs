@@ -8,7 +8,7 @@ const migrationPath = path.join(
   root,
   "supabase",
   "migrations",
-  "20260711000300_seed_aims_roadmap.sql",
+  "20260711000500_update_aims_roadmap.sql",
 );
 
 const roadmap = JSON.parse(await readFile(roadmapPath, "utf8"));
