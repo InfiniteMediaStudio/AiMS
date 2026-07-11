@@ -12,7 +12,7 @@ const ROUTES = [
   { agent: "Develop", keywords: ["code", "website", "app", "deploy", "bug", "github"] },
   { agent: "Design", keywords: ["design", "brand", "logo", "figma", "ui", "creative"] },
   { agent: "Video", keywords: ["video", "reel", "script", "storyboard", "edit"] },
-  { agent: "Support", keywords: ["client", "support", "follow-up", "meeting", "summary"] },
+  { agent: "Support", keywords: ["client", "support", "follow-up", "meeting", "summary", "email", "data"] },
   { agent: "QA", keywords: ["review", "check", "audit", "quality", "approve"] },
   { agent: "Accounts", keywords: ["invoice", "payment", "retainer", "subscription", "finance"] },
 ];
@@ -49,9 +49,7 @@ export function buildManagerContext(roadmap) {
 export function createDryRunPlan(request, roadmap) {
   const lowerRequest = request.toLowerCase();
   const words = new Set(lowerRequest.match(/[a-z0-9]+/g) ?? []);
-  const route = ROUTES.find((entry) => entry.keywords.some((keyword) => matchesKeyword(keyword, lowerRequest, words))) ?? {
-    agent: "Manager",
-  };
+  const route = selectRoute(lowerRequest, words);
   const approvalRule = APPROVAL_RULES.find((rule) => rule.match.every((word) => lowerRequest.includes(word)));
   const context = buildManagerContext(roadmap);
 
@@ -74,6 +72,24 @@ export function createDryRunPlan(request, roadmap) {
     roadmapNextFocus: context.nextFocus,
     context,
   };
+}
+
+function selectRoute(lowerRequest, words) {
+  const scoredRoutes = ROUTES
+    .map((entry, index) => ({
+      entry,
+      index,
+      score: entry.keywords.reduce((total, keyword) => total + keywordScore(keyword, lowerRequest, words), 0),
+    }))
+    .filter((route) => route.score > 0)
+    .sort((left, right) => right.score - left.score || left.index - right.index);
+
+  return scoredRoutes[0]?.entry ?? { agent: "Manager" };
+}
+
+function keywordScore(keyword, lowerRequest, words) {
+  if (!matchesKeyword(keyword, lowerRequest, words)) return 0;
+  return keyword.includes(" ") || keyword.includes("-") ? 2 : 1;
 }
 
 function matchesKeyword(keyword, lowerRequest, words) {

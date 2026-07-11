@@ -1,0 +1,72 @@
+[
+  {
+    "name": "social publish requires approval",
+    "request": "Publish an Instagram post for a client campaign.",
+    "expectedAgent": "Social",
+    "approvalRequired": true,
+    "taskStatus": "approval_required"
+  },
+  {
+    "name": "client email requires approval",
+    "request": "Send a client email with this weekly summary.",
+    "expectedAgent": "Support",
+    "approvalRequired": true,
+    "taskStatus": "approval_required"
+  },
+  {
+    "name": "ad budget change requires approval",
+    "request": "Increase Google Ads budget spend for the search campaign.",
+    "expectedAgent": "Google",
+    "approvalRequired": true,
+    "taskStatus": "approval_required"
+  },
+  {
+    "name": "production deploy requires approval",
+    "request": "Deploy the website app to production after the bug fix.",
+    "expectedAgent": "Develop",
+    "approvalRequired": true,
+    "taskStatus": "approval_required"
+  },
+  {
+    "name": "production data edit requires approval",
+    "request": "Edit production client data in the account record.",
+    "expectedAgent": "Support",
+    "approvalRequired": true,
+    "taskStatus": "approval_required"
+  },
+  {
+    "name": "sales proposal routes without approval",
+    "request": "Draft a proposal for a new lead in the sales pipeline.",
+    "expectedAgent": "Sales",
+    "approvalRequired": false,
+    "taskStatus": "triage"
+  },
+  {
+    "name": "internal client report routes to support",
+    "request": "Create an internal weekly client report draft.",
+    "expectedAgent": "Support",
+    "approvalRequired": false,
+    "taskStatus": "triage"
+  },
+  {
+    "name": "video storyboard routes to video",
+    "request": "Prepare a storyboard and caption options for a short reel.",
+    "expectedAgent": "Video",
+    "approvalRequired": false,
+    "taskStatus": "triage"
+  },
+  {
+    "name": "invoice task routes to accounts",
+    "request": "Create an invoice reminder for an overdue retainer payment.",
+    "expectedAgent": "Accounts",
+    "approvalRequired": false,
+    "taskStatus": "triage"
+  },
+  {
+    "name": "quality review routes to QA",
+    "request": "Review this landing page for factual accuracy and brand quality.",
+    "expectedAgent": "QA",
+    "approvalRequired": false,
+    "taskStatus": "triage"
+  }
+]

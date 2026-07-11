@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { runManagerAgent } from "./manager-agent.mjs";
+import { loadManagerStore } from "./manager-storage.mjs";
 
 const PORT = Number(process.env.PORT ?? 4317);
 
@@ -40,6 +41,18 @@ const server = createServer(async (request, response) => {
       return;
     }
 
+    if (request.method === "GET" && request.url === "/runs") {
+      const store = await loadManagerStore();
+      sendJson(response, 200, { runs: store.runs });
+      return;
+    }
+
+    if (request.method === "GET" && request.url === "/tasks") {
+      const store = await loadManagerStore();
+      sendJson(response, 200, { tasks: store.tasks });
+      return;
+    }
+
     if (request.method === "POST" && request.url === "/run") {
       const body = JSON.parse((await readBody(request)) || "{}");
       const result = await runManagerAgent({
@@ -51,7 +64,7 @@ const server = createServer(async (request, response) => {
       return;
     }
 
-    sendJson(response, 404, { error: "Use GET /health or POST /run." });
+    sendJson(response, 404, { error: "Use GET /health, GET /runs, GET /tasks, or POST /run." });
   } catch (error) {
     sendJson(response, 500, { error: error.message });
   }

@@ -19,6 +19,13 @@ assert.equal(internalPlan.taskStatus, "triage");
 const approvalWordPlan = createDryRunPlan("Create a weekly client summary draft and identify approval needs.", roadmap);
 assert.equal(approvalWordPlan.routedAgent, "Support");
 assert.equal(approvalWordPlan.approvalRequired, false);
+const evalCases = JSON.parse(await readFile(resolve(import.meta.dirname, "evals", "routing-approval.json"), "utf8"));
+for (const testCase of evalCases) {
+  const plan = createDryRunPlan(testCase.request, roadmap);
+  assert.equal(plan.routedAgent, testCase.expectedAgent, testCase.name);
+  assert.equal(plan.approvalRequired, testCase.approvalRequired, testCase.name);
+  assert.equal(plan.taskStatus, testCase.taskStatus, testCase.name);
+}
 
 const tempDir = await mkdtemp(resolve(tmpdir(), "aims-manager-test-"));
 const dashboardRunsPath = resolve(tempDir, "manager-runs.json");

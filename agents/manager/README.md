@@ -7,6 +7,7 @@ First local prototype for the AiMS Manager role. It routes agency requests, chec
 ```bash
 npm run manager:dry-run
 npm run manager:test
+npm run manager:eval
 npm run manager:live
 npm run manager:serve
 ```
@@ -21,6 +22,8 @@ npm run manager:serve
 
 ```bash
 GET  http://127.0.0.1:4317/health
+GET  http://127.0.0.1:4317/runs
+GET  http://127.0.0.1:4317/tasks
 POST http://127.0.0.1:4317/run
 ```
 
@@ -41,3 +44,11 @@ Every Manager Agent run now writes local JSON records to:
 - `agents/manager/data/runs.json`
 
 The latest five runs are mirrored to `src/manager-runs.json` so the roadmap dashboard can show recent Manager activity without requiring the local HTTP service to be running.
+
+## Routing and approval evals
+
+`npm run manager:eval` runs the fixture set in `agents/manager/evals/routing-approval.json`. The cases cover routing targets, approval-required decisions, and expected task lifecycle status for common agency requests.
+
+## Persistence decision
+
+The local file store is the active prototype store. PostgreSQL + pgvector remains the selected production persistence direction once the local schema is stable enough to promote.

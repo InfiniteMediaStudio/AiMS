@@ -1,5 +1,16 @@
 [
   {
+    "run_id": "run_20260711010637_iz1hra",
+    "request": "Create a weekly client summary draft and identify approval needs.",
+    "agent": "Support",
+    "status": "triage",
+    "approval_required": false,
+    "decision": "logged",
+    "next_action": "Create the task, route it to the suggested agent, and log the run for review.",
+    "timestamp": "2026-07-11T01:06:37.407Z",
+    "mode": "dry-run"
+  },
+  {
     "run_id": "run_20260711005055_7fn4da",
     "request": "Create a weekly client summary draft and identify approval needs.",
     "agent": "Support",

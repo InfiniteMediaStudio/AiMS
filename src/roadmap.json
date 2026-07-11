@@ -3,14 +3,14 @@
     "projectName": "AiMS",
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
-    "currentState": "Roadmap dashboard built; Manager Agent control-plane scope is frozen; local Manager Agent now persists task and run-log records and surfaces latest runs in the dashboard. Live OpenAI smoke test remains blocked by API quota/billing.",
-    "nextFocus": "Add first Manager Agent eval cases for routing and approval gates, then decide the first production persistence backend."
+    "currentState": "Manager Agent local MVP is ready: scored routing, approval gates, persistence, run-log dashboard visibility, service inspection endpoints, and routing/approval evals are implemented. Live OpenAI smoke test remains blocked by API quota/billing.",
+    "nextFocus": "Unblock API billing/quota and run a live Manager Agent smoke test; if still blocked, start the Social Agent MVP on the Manager foundations."
   },
   "stats": [
     {
       "label": "Overall",
-      "value": "20%",
-      "detail": "Real progress based on completed project work: dashboard scaffold exists, Manager Agent control-plane scope is frozen, and the first local Manager Agent prototype is implemented. Database, scheduler, specialist agents, and integrations are still pending."
+      "value": "24%",
+      "detail": "Real progress based on completed project work: dashboard scaffold exists, Manager Agent local MVP now has routing, approval gates, persistence, run-log visibility, and eval coverage. Live OpenAI validation, scheduler, specialist agents, and integrations are still pending."
     },
     {
       "label": "Agents",
@@ -19,12 +19,12 @@
     },
     {
       "label": "Ready",
-      "value": "2",
-      "detail": "The roadmap dashboard is ready for review and the Manager Agent has a first runnable local prototype."
+      "value": "3",
+      "detail": "The roadmap dashboard, Manager Agent local MVP, and Manager routing/approval eval suite are ready for review."
     },
     {
       "label": "Decision Items",
-      "value": "7",
+      "value": "8",
       "detail": "These decisions should be frozen before core development begins. API billing/quota is now tracked because live OpenAI calls reached the API but were rejected by current quota."
     }
   ],
@@ -37,13 +37,31 @@
       "icon": "Workflow",
       "purpose": "Central dispatcher for requests, routing, approvals, schedules, and operational visibility.",
       "compact": "Routes work and controls approvals.",
-      "tools": ["Task DB", "Calendar", "CRM", "Approval queue"],
-      "requirements": ["Task lifecycle frozen", "Approval matrix frozen", "Run log shape frozen", "Client context lookup", "Escalation rules"],
-      "todos": ["Add first eval cases for routing and approval gates", "Choose production persistence backend after file-store prototype", "Create run-log viewer filters for agent, status, and approval state"],
-      "risks": ["Too much autonomy before approvals are tested", "Unclear ownership between agents"],
-      "progress": 58,
-      "status": "active",
-      "statusAction": "Next: add first eval cases for routing and approval gates, then choose the production persistence backend.",
+      "tools": [
+        "Task DB",
+        "Calendar",
+        "CRM",
+        "Approval queue"
+      ],
+      "requirements": [
+        "Task lifecycle frozen",
+        "Approval matrix frozen",
+        "Run log shape frozen",
+        "Client context lookup",
+        "Escalation rules"
+      ],
+      "todos": [
+        "Run live OpenAI smoke test after billing/quota is unblocked",
+        "Add run-log dashboard filters for agent, status, and approval state",
+        "Promote file-store schema to PostgreSQL when production begins"
+      ],
+      "risks": [
+        "Live OpenAI validation is blocked until API billing/quota is fixed",
+        "Do not connect publishing or client-write tools until approvals are tested in live mode"
+      ],
+      "progress": 72,
+      "status": "ready",
+      "statusAction": "Local Manager MVP is ready. Next blocker: enable API billing/quota and run the live OpenAI smoke test.",
       "priority": "P0",
       "nextFocus": true
     },
@@ -55,10 +73,27 @@
       "icon": "Code2",
       "purpose": "Builds web/app work, writes tests, opens pull requests, and prepares deployments.",
       "compact": "Code, review, test, PR, deploy handoff.",
-      "tools": ["GitHub", "Codex", "Browser tests", "Deployment CLI"],
-      "requirements": ["Repo access", "Coding conventions", "Test command registry", "Deployment approval gate"],
-      "todos": ["Define PR template", "Map dev environments", "Add QA checklist"],
-      "risks": ["Production changes without review", "Client repo credentials must stay isolated"],
+      "tools": [
+        "GitHub",
+        "Codex",
+        "Browser tests",
+        "Deployment CLI"
+      ],
+      "requirements": [
+        "Repo access",
+        "Coding conventions",
+        "Test command registry",
+        "Deployment approval gate"
+      ],
+      "todos": [
+        "Define PR template",
+        "Map dev environments",
+        "Add QA checklist"
+      ],
+      "risks": [
+        "Production changes without review",
+        "Client repo credentials must stay isolated"
+      ],
       "progress": 4,
       "status": "pending",
       "statusAction": "Wait until core task and approval system is frozen, then design the GitHub workflow.",
@@ -73,10 +108,27 @@
       "icon": "Palette",
       "purpose": "Produces UI directions, brand systems, campaign visuals, and handoff-ready creative briefs.",
       "compact": "Brand, UI, layouts, creative systems.",
-      "tools": ["Figma-ready exports", "Image generation", "Asset library", "Brand memory"],
-      "requirements": ["Brand voice files", "Design token format", "Asset naming rules", "Review states"],
-      "todos": ["Define brand kit schema", "Create creative brief template", "Set visual QA rubric"],
-      "risks": ["Off-brand outputs", "Unlicensed assets entering client work"],
+      "tools": [
+        "Figma-ready exports",
+        "Image generation",
+        "Asset library",
+        "Brand memory"
+      ],
+      "requirements": [
+        "Brand voice files",
+        "Design token format",
+        "Asset naming rules",
+        "Review states"
+      ],
+      "todos": [
+        "Define brand kit schema",
+        "Create creative brief template",
+        "Set visual QA rubric"
+      ],
+      "risks": [
+        "Off-brand outputs",
+        "Unlicensed assets entering client work"
+      ],
       "progress": 4,
       "status": "pending",
       "statusAction": "Freeze the client brand kit schema after the Manager Agent requirements are stable.",
@@ -91,10 +143,27 @@
       "icon": "Film",
       "purpose": "Plans short-form and campaign video scripts, storyboards, captions, and edit briefs.",
       "compact": "Scripts, hooks, storyboards, captions.",
-      "tools": ["Drive media", "Shot lists", "Caption library", "Storyboard templates"],
-      "requirements": ["Video formats", "Brand-safe claim rules", "Media storage paths", "Approval checkpoints"],
-      "todos": ["Define storyboard format", "Create caption variants", "List required source assets"],
-      "risks": ["Wrong claims in ad scripts", "Missing permissions for client media"],
+      "tools": [
+        "Drive media",
+        "Shot lists",
+        "Caption library",
+        "Storyboard templates"
+      ],
+      "requirements": [
+        "Video formats",
+        "Brand-safe claim rules",
+        "Media storage paths",
+        "Approval checkpoints"
+      ],
+      "todos": [
+        "Define storyboard format",
+        "Create caption variants",
+        "List required source assets"
+      ],
+      "risks": [
+        "Wrong claims in ad scripts",
+        "Missing permissions for client media"
+      ],
       "progress": 2,
       "status": "pending",
       "statusAction": "Keep planned until creative asset and approval structures are defined.",
@@ -109,10 +178,27 @@
       "icon": "BarChart3",
       "purpose": "Handles SEO, Google Ads planning, keyword strategy, landing-page checks, and performance reports.",
       "compact": "SEO, Ads, keywords, analytics reports.",
-      "tools": ["GA4", "Search Console", "Google Ads exports", "Sheets import"],
-      "requirements": ["Analytics access", "Campaign budget rules", "Keyword taxonomy", "Report cadence"],
-      "todos": ["Choose reporting metrics", "Define budget-change approval", "Map client properties"],
-      "risks": ["Ad spend changes need strict permission", "Analytics data can be noisy or delayed"],
+      "tools": [
+        "GA4",
+        "Search Console",
+        "Google Ads exports",
+        "Sheets import"
+      ],
+      "requirements": [
+        "Analytics access",
+        "Campaign budget rules",
+        "Keyword taxonomy",
+        "Report cadence"
+      ],
+      "todos": [
+        "Choose reporting metrics",
+        "Define budget-change approval",
+        "Map client properties"
+      ],
+      "risks": [
+        "Ad spend changes need strict permission",
+        "Analytics data can be noisy or delayed"
+      ],
       "progress": 3,
       "status": "pending",
       "statusAction": "Start with read-only reporting before any ad budget action is allowed.",
@@ -127,10 +213,27 @@
       "icon": "Megaphone",
       "purpose": "Creates platform-specific calendars, posts, hooks, campaigns, and approval-ready drafts.",
       "compact": "Content calendar and post drafts.",
-      "tools": ["Meta", "LinkedIn", "Scheduler", "Brand voice memory"],
-      "requirements": ["Platform list", "Posting cadence", "Approval workflow", "Voice rules"],
-      "todos": ["Build content calendar schema", "Define post status flow", "Create caption rubric"],
-      "risks": ["Publishing without approval", "Tone mismatch across clients"],
+      "tools": [
+        "Meta",
+        "LinkedIn",
+        "Scheduler",
+        "Brand voice memory"
+      ],
+      "requirements": [
+        "Platform list",
+        "Posting cadence",
+        "Approval workflow",
+        "Voice rules"
+      ],
+      "todos": [
+        "Build content calendar schema",
+        "Define post status flow",
+        "Create caption rubric"
+      ],
+      "risks": [
+        "Publishing without approval",
+        "Tone mismatch across clients"
+      ],
       "progress": 6,
       "status": "pending",
       "statusAction": "Prepare as the first specialist after Manager because it gives fast agency value.",
@@ -145,10 +248,27 @@
       "icon": "HandCoins",
       "purpose": "Researches leads, drafts outreach, prepares proposals, and keeps pipeline records current.",
       "compact": "Lead research, outreach, proposals.",
-      "tools": ["CRM", "Email drafts", "Proposal templates", "Calendar"],
-      "requirements": ["ICP definitions", "Offer library", "Follow-up rules", "CRM fields"],
-      "todos": ["Freeze CRM choice", "Create proposal data model", "Define email approval rule"],
-      "risks": ["Outbound messages need approval", "Lead data must be sourced responsibly"],
+      "tools": [
+        "CRM",
+        "Email drafts",
+        "Proposal templates",
+        "Calendar"
+      ],
+      "requirements": [
+        "ICP definitions",
+        "Offer library",
+        "Follow-up rules",
+        "CRM fields"
+      ],
+      "todos": [
+        "Freeze CRM choice",
+        "Create proposal data model",
+        "Define email approval rule"
+      ],
+      "risks": [
+        "Outbound messages need approval",
+        "Lead data must be sourced responsibly"
+      ],
       "progress": 5,
       "status": "pending",
       "statusAction": "Choose the first CRM and map required pipeline fields.",
@@ -163,10 +283,27 @@
       "icon": "ShieldCheck",
       "purpose": "Handles client follow-ups, weekly summaries, support requests, and account health signals.",
       "compact": "Client support, follow-ups, reports.",
-      "tools": ["Client notes", "Support inbox", "Reports", "Calendar"],
-      "requirements": ["Support request lifecycle", "Client health status", "Weekly summary template", "Escalation rules"],
-      "todos": ["Define client support statuses", "Create weekly support report outline", "Map escalation triggers"],
-      "risks": ["Client-facing messages need approval", "Support issues can hide delivery risks"],
+      "tools": [
+        "Client notes",
+        "Support inbox",
+        "Reports",
+        "Calendar"
+      ],
+      "requirements": [
+        "Support request lifecycle",
+        "Client health status",
+        "Weekly summary template",
+        "Escalation rules"
+      ],
+      "todos": [
+        "Define client support statuses",
+        "Create weekly support report outline",
+        "Map escalation triggers"
+      ],
+      "risks": [
+        "Client-facing messages need approval",
+        "Support issues can hide delivery risks"
+      ],
       "progress": 3,
       "status": "pending",
       "statusAction": "Define support lifecycle after Manager task states are connected.",
@@ -181,10 +318,27 @@
       "icon": "ShieldCheck",
       "purpose": "Reviews output quality, factual accuracy, brand fit, permissions, and publish readiness.",
       "compact": "Final checks and risk control.",
-      "tools": ["Checklists", "Audit logs", "Policy rules", "Eval cases"],
-      "requirements": ["Review rubrics", "Forbidden actions", "Audit log schema", "Eval suite"],
-      "todos": ["Define universal QA checklist", "Create blocked-action registry", "Add eval cases"],
-      "risks": ["Weak governance makes every other agent unsafe", "Review rules can become too vague"],
+      "tools": [
+        "Checklists",
+        "Audit logs",
+        "Policy rules",
+        "Eval cases"
+      ],
+      "requirements": [
+        "Review rubrics",
+        "Forbidden actions",
+        "Audit log schema",
+        "Eval suite"
+      ],
+      "todos": [
+        "Define universal QA checklist",
+        "Create blocked-action registry",
+        "Add eval cases"
+      ],
+      "risks": [
+        "Weak governance makes every other agent unsafe",
+        "Review rules can become too vague"
+      ],
       "progress": 5,
       "status": "pending",
       "statusAction": "Create the first cross-agent QA checklist before any publishing tools are connected.",
@@ -199,10 +353,27 @@
       "icon": "HandCoins",
       "purpose": "Tracks invoices, retainers, subscriptions, payment follow-ups, and project profitability notes.",
       "compact": "Invoices, payments, finance tracking.",
-      "tools": ["Invoice records", "Payment reminders", "Subscription list", "Profitability notes"],
-      "requirements": ["Invoice status flow", "Payment reminder rules", "Subscription tracker", "Finance approval boundaries"],
-      "todos": ["Define invoice statuses", "Create payment reminder template", "Map monthly account summary"],
-      "risks": ["Financial messages require approval", "Sensitive payment data must stay protected"],
+      "tools": [
+        "Invoice records",
+        "Payment reminders",
+        "Subscription list",
+        "Profitability notes"
+      ],
+      "requirements": [
+        "Invoice status flow",
+        "Payment reminder rules",
+        "Subscription tracker",
+        "Finance approval boundaries"
+      ],
+      "todos": [
+        "Define invoice statuses",
+        "Create payment reminder template",
+        "Map monthly account summary"
+      ],
+      "risks": [
+        "Financial messages require approval",
+        "Sensitive payment data must stay protected"
+      ],
       "progress": 2,
       "status": "pending",
       "statusAction": "Define accounting workflow after core CRM and client records are selected.",
@@ -215,28 +386,28 @@
       "number": "01",
       "title": "Requirement Freeze",
       "mode": "freeze",
-      "progress": 48,
-      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle, approval rules, first prototype direction, and local persistence shape are now frozen.",
-      "todo": "Add routing and approval eval cases.",
-      "statusAction": "Next: add first Manager Agent eval cases for routing and approval gates."
+      "progress": 58,
+      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle, approval rules, local persistence shape, and routing/approval eval expectations are now frozen.",
+      "todo": "Keep new scope behind Decisions Board before specialist agents are built.",
+      "statusAction": "Next: keep decisions tight while moving into specialist MVP work."
     },
     {
       "number": "02",
       "title": "Independent Core",
       "mode": "build",
-      "progress": 20,
-      "summary": "Build owned backend, database, scheduler, queue, and file/memory foundations. The first Node-based Manager Agent service scaffold and file-backed task/run persistence are now implemented.",
-      "todo": "Choose production database path after the local file-store prototype is validated.",
-      "statusAction": "Next: decide whether PostgreSQL becomes the first production persistence backend."
+      "progress": 26,
+      "summary": "Build owned backend, database, scheduler, queue, and file/memory foundations. Manager Agent service endpoints, file-backed task/run persistence, and dashboard run mirroring are implemented.",
+      "todo": "Promote the local file schema to PostgreSQL when production storage begins.",
+      "statusAction": "Production persistence direction is PostgreSQL + pgvector after the local file-store schema is proven."
     },
     {
       "number": "03",
       "title": "Agent MVP",
       "mode": "build",
-      "progress": 14,
-      "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates. Manager Agent MVP is now runnable locally.",
-      "todo": "Add eval cases before building specialist agents.",
-      "statusAction": "Continue Manager Agent hardening before Social and Sales implementation."
+      "progress": 24,
+      "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates. Manager local MVP is ready; Social and Sales remain pending.",
+      "todo": "Run live Manager smoke test when quota is unblocked, then start Social Agent MVP.",
+      "statusAction": "Manager is locally ready; next specialist candidate is Social."
     },
     {
       "number": "04",
@@ -268,13 +439,13 @@
       "name": "OpenAI Responses API",
       "status": "in process",
       "progress": 20,
-      "next": "Manager Agent live mode is coded and reaches OpenAI, but live output is blocked until API quota or billing is enabled."
+      "next": "Manager Agent live mode is coded, but live output remains blocked until API quota or billing is enabled."
     },
     {
       "name": "PostgreSQL + pgvector",
-      "status": "pending",
-      "progress": 10,
-      "next": "Local file-backed task and run-log persistence is implemented. Decide when to promote this schema to PostgreSQL."
+      "status": "ready",
+      "progress": 20,
+      "next": "Selected production persistence direction after the local file-backed task/run schema is validated."
     },
     {
       "name": "Redis or open-source queue",
@@ -309,7 +480,7 @@
       "Update agent progress, phase progress, status, decisions, and the nextFocus item.",
       "Commit and push to GitHub for deployment."
     ],
-    "lastCompleted": "Connected Manager Agent dry-run/live paths to local task and run-log persistence, mirrored latest runs into the dashboard, and added persistence tests."
+    "lastCompleted": "Added Manager routing/approval eval suite, upgraded routing to scored matching, exposed task/run inspection endpoints, and marked the local Manager MVP ready."
   },
   "managerControlPlane": {
     "taskLifecycle": [
@@ -357,7 +528,18 @@
         "approver": "System can proceed and log"
       }
     ],
-    "runLogFields": ["run_id", "request", "agent", "status", "tools_used", "approval_required", "decision", "output_link", "next_action", "timestamp"]
+    "runLogFields": [
+      "run_id",
+      "request",
+      "agent",
+      "status",
+      "tools_used",
+      "approval_required",
+      "decision",
+      "output_link",
+      "next_action",
+      "timestamp"
+    ]
   },
   "decisions": [
     {
@@ -394,6 +576,11 @@
       "label": "API billing quota",
       "status": "pending",
       "detail": "Pending. Live OpenAI smoke test reached the API but returned a current quota/billing error. Enable API billing or adjust usage limits before live agent runs can complete."
+    },
+    {
+      "label": "Production persistence",
+      "status": "decided",
+      "detail": "Decided. Use PostgreSQL + pgvector as the production persistence backend after the local file-backed task and run-log schema is validated. Keep the JSON file store as the local prototype and dashboard mirror."
     }
   ]
 }

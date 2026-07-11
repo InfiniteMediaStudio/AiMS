@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "manager:dry-run": "node agents/manager/cli.mjs --dry-run --json",
     "manager:test": "node agents/manager/test-manager.mjs",
+    "manager:eval": "node agents/manager/eval-manager.mjs",
     "manager:live": "node agents/manager/cli.mjs --json",
     "manager:serve": "node agents/manager/server.mjs",
     "github:push": "git push -u origin main"
