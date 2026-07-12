@@ -18,13 +18,10 @@ import {
   Search,
   Send,
   ShieldCheck,
-  Sparkles,
   Sun,
   UserRound,
   X,
 } from "lucide-react";
-import roadmap from "./roadmap.json";
-import managerRunsData from "./manager-runs.json";
 import {
   getRoadmapSession,
   createOnlineManagerRun,
@@ -65,7 +62,6 @@ declare global {
 }
 type Status = "active" | "ready" | "in process" | "pending" | "blocked";
 type Priority = "P0" | "P1" | "P2";
-type Mode = "freeze" | "build" | "scale";
 
 type Agent = {
   id: string;
@@ -88,7 +84,7 @@ type Agent = {
 type Phase = {
   number: string;
   title: string;
-  mode: Mode;
+  status: Status;
   progress: number;
   summary: string;
   todo: string;
@@ -101,6 +97,7 @@ type StackItem = {
   status: Status;
   progress: number;
   next: string;
+  nextFocus?: boolean;
 };
 
 type Decision = {
@@ -136,11 +133,43 @@ type ManagerControlPlane = {
     approver: string;
   }>;
   runLogFields: string[];
+  sectionProgress: Record<"roles" | "authority" | "capabilities" | "tasks" | "priorities" | "guardrails" | "activity", number>;
 };
 
-type RoadmapData = typeof roadmap;
+type RoadmapData = {
+  meta: { projectName: string; subtitle: string; version: string; currentState: string; nextFocus: string };
+  stats: Array<{ label: string; value: string; detail: string }>;
+  agents: Agent[];
+  phases: Phase[];
+  stack: StackItem[];
+  decisions: Decision[];
+  workRound: WorkRound;
+  managerControlPlane: ManagerControlPlane;
+};
 
-const initialManagerRuns = managerRunsData as ManagerRun[];
+const emptyRoadmap: RoadmapData = {
+  meta: { projectName: "AiM", subtitle: "Roadmap", version: "", currentState: "", nextFocus: "" },
+  stats: [], agents: [], phases: [], stack: [], decisions: [],
+  workRound: { title: "Instructions", triggerModes: [], steps: [], lastCompleted: "" },
+  managerControlPlane: { taskLifecycle: [], approvalMatrix: [], runLogFields: [], sectionProgress: { roles: 80, authority: 100, capabilities: 55, tasks: 75, priorities: 35, guardrails: 70, activity: 65 } },
+};
+
+function normalizeRoadmap(document: RoadmapData): RoadmapData {
+  return {
+    ...document,
+    meta: { ...document.meta, projectName: "AiM" },
+    phases: document.phases.map((phase) => {
+      if (phase.number === "08") return { ...phase, progress: 100, status: "ready", nextFocus: false };
+      if (phase.number === "09") return { ...phase, progress: 40, status: "active", nextFocus: true };
+      return { ...phase, status: phase.status ?? (phase.nextFocus ? "active" : phase.progress === 100 ? "ready" : phase.progress > 0 ? "in process" : "pending") };
+    }),
+    workRound: { ...document.workRound, title: "Instructions" },
+    managerControlPlane: {
+      ...document.managerControlPlane,
+      sectionProgress: { ...emptyRoadmap.managerControlPlane.sectionProgress, ...document.managerControlPlane?.sectionProgress },
+    },
+  };
+}
 
 function averageProgress(values: number[]) {
   if (values.length === 0) return 0;
@@ -153,12 +182,6 @@ const statusClasses: Record<Status, string> = {
   "in process": "tag-warning",
   pending: "tag-muted",
   blocked: "tag-danger",
-};
-
-const modeClasses: Record<Mode, string> = {
-  freeze: "tag-danger",
-  build: "tag-warning",
-  scale: "tag-success",
 };
 
 const decisionClasses: Record<Decision["status"], string> = {
@@ -255,23 +278,54 @@ function IconButton({
   );
 }
 
+function ManagerSection({
+  title,
+  subtitle,
+  progress,
+  open,
+  onToggle,
+  className = "",
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  progress: number;
+  open: boolean;
+  onToggle: () => void;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className={`manager-panel ${className}`}>
+      <button aria-expanded={open} className="manager-panel-toggle" onClick={onToggle} type="button">
+        <span className="manager-panel-copy"><strong>{title}</strong><span>{subtitle}</span></span>
+        <Pill className="tag-info">{progress}%</Pill>
+        <ChevronDown className={`icon-muted ${open ? "rotate" : ""}`} />
+      </button>
+      {open ? <div className="manager-panel-body">{children}</div> : null}
+    </section>
+  );
+}
+
 function App() {
-  const [roadmapData, setRoadmapData] = useState<RoadmapData>(roadmap);
+  const [roadmapData, setRoadmapData] = useState<RoadmapData>(emptyRoadmap);
+  const [roadmapLoaded, setRoadmapLoaded] = useState(false);
   const [theme, setTheme] = useState<Theme>("dark");
   const [expandedAgents, setExpandedAgents] = useState<string[]>([]);
   const [expandedPhases, setExpandedPhases] = useState<string[]>([]);
   const [stackOpen, setStackOpen] = useState(false);
   const [decisionsOpen, setDecisionsOpen] = useState(false);
-  const [managerRunsOpen, setManagerRunsOpen] = useState(false);
   const [workRoundOpen, setWorkRoundOpen] = useState(false);
+  const [managerSectionsOpen, setManagerSectionsOpen] = useState<string[]>([]);
   const [hostedVersion, setHostedVersion] = useState<number | null>(null);
   const [ownerSession, setOwnerSession] = useState<Session | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [ownerEmail, setOwnerEmail] = useState("");
   const [ownerPassword, setOwnerPassword] = useState("");
   const [ownerMessage, setOwnerMessage] = useState("");
   const [ownerBusy, setOwnerBusy] = useState(false);
   const [ownerModalOpen, setOwnerModalOpen] = useState(false);
-  const [managerRuns, setManagerRuns] = useState<ManagerRun[]>(initialManagerRuns);
+  const [managerRuns, setManagerRuns] = useState<ManagerRun[]>([]);
   const [managerRequest, setManagerRequest] = useState("");
   const [voiceListening, setVoiceListening] = useState(false);
   const [confirmationRequired, setConfirmationRequired] = useState(false);
@@ -283,35 +337,59 @@ function App() {
   const stack = roadmapData.stack as StackItem[];
   const decisions = roadmapData.decisions as Decision[];
   const workRound = roadmapData.workRound as WorkRound;
-  const managerControlPlane = roadmapData.managerControlPlane as ManagerControlPlane;
+  const managerControlPlane: ManagerControlPlane = {
+    ...emptyRoadmap.managerControlPlane,
+    ...roadmapData.managerControlPlane,
+    sectionProgress: {
+      ...emptyRoadmap.managerControlPlane.sectionProgress,
+      ...roadmapData.managerControlPlane?.sectionProgress,
+    },
+  };
   const agentCompletion = averageProgress(agents.map((agent) => agent.progress));
   const phaseCompletion = averageProgress(phases.map((phase) => phase.progress));
   const stackCompletion = averageProgress(stack.map((item) => item.progress));
+  const statusMeanings: Array<{ status: Status; meaning: string }> = [
+    { status: "active", meaning: "Ready and working, or currently has a task to do." },
+    { status: "ready", meaning: "Ready to work, but idle or without an assigned task." },
+    { status: "in process", meaning: "Being constructed, built, or prepared for work." },
+    { status: "pending", meaning: "Not currently being built; waiting or on hold." },
+  ];
 
   useEffect(() => {
+    if (!ownerSession) return;
     let active = true;
 
-    loadRoadmapDocument<RoadmapData>("aims-roadmap").then((hostedRoadmap) => {
-      if (active && hostedRoadmap) {
-        setRoadmapData(hostedRoadmap.document);
+    setRoadmapLoaded(false);
+    loadRoadmapDocument<RoadmapData>(ownerSession.access_token).then((hostedRoadmap) => {
+      if (active) {
+        setRoadmapData(normalizeRoadmap(hostedRoadmap.document));
         setHostedVersion(hostedRoadmap.version);
+        setRoadmapLoaded(true);
       }
+    }).catch((error) => {
+      if (active) setOwnerMessage(error instanceof Error ? error.message : "Secure roadmap could not be loaded.");
     });
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [ownerSession]);
 
   useEffect(() => {
-    getRoadmapSession().then(setOwnerSession);
-    return subscribeToRoadmapSession(setOwnerSession);
+    getRoadmapSession().then((session) => {
+      setOwnerSession(session);
+      setAuthChecked(true);
+    });
+    return subscribeToRoadmapSession((session) => {
+      setOwnerSession(session);
+      setAuthChecked(true);
+    });
   }, []);
 
   useEffect(() => {
     if (!ownerSession) return;
     loadOnlineManagerRuns<ManagerRun>(ownerSession.access_token)
-      .then((runs) => setManagerRuns(runs.length > 0 ? runs : initialManagerRuns))
+      .then(setManagerRuns)
       .catch((error) => setOwnerMessage(error instanceof Error ? error.message : "Manager runs could not be loaded."));
   }, [ownerSession]);
 
@@ -360,6 +438,10 @@ function App() {
       setManagerRequest("");
       setConfirmationRequired(false);
       setOwnerMessage(`Manager routed the request to ${run.agent}; status: ${run.status}.`);
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(`Request routed to ${run.agent}. Status ${run.status.replace(/_/g, " ")}.`));
+      }
     } catch (error) {
       setOwnerMessage(error instanceof Error ? error.message : "Manager request could not be created.");
     } finally {
@@ -476,19 +558,43 @@ function App() {
     session.finishTimer = window.setTimeout(() => acceptVoiceTranscript(session.transcript), 5000);
   };
 
+  const toggleManagerSection = (section: string) => {
+    setManagerSectionsOpen((current) => current.includes(section)
+      ? current.filter((item) => item !== section)
+      : [...current, section]);
+  };
+
+  if (!authChecked) {
+    return <main data-theme={theme} className="app-shell auth-shell"><div className="auth-loading">Checking secure session…</div></main>;
+  }
+
+  if (!ownerSession) {
+    return (
+      <main data-theme={theme} className="app-shell auth-shell">
+        <section className="auth-card card" aria-labelledby="roadmap-login-title">
+          <div className="auth-brand"><span>AiM</span><Pill className="tag-info">Private</Pill></div>
+          <div><h1 className="heading" id="roadmap-login-title">Sign in to the roadmap</h1><p className="text-muted">Authentication is required before any roadmap or Manager information is shown.</p></div>
+          <form className="admin-login-form" onSubmit={signInOwner}>
+            <label className="admin-field"><span>Email</span><input autoComplete="username" className="owner-input" onChange={(event) => setOwnerEmail(event.target.value)} required type="email" value={ownerEmail} /></label>
+            <label className="admin-field"><span>Password</span><input autoComplete="current-password" className="owner-input" onChange={(event) => setOwnerPassword(event.target.value)} required type="password" value={ownerPassword} /></label>
+            <button className="owner-button auth-submit" disabled={ownerBusy} type="submit"><LogIn className="icon-small" />{ownerBusy ? "Signing in…" : "Enter secure roadmap"}</button>
+          </form>
+          {ownerMessage ? <span className="owner-message" role="alert">{ownerMessage}</span> : null}
+        </section>
+      </main>
+    );
+  }
+
+  if (!roadmapLoaded) {
+    return <main data-theme={theme} className="app-shell auth-shell"><div className="auth-loading">Loading secure roadmap…{ownerMessage ? ` ${ownerMessage}` : ""}</div></main>;
+  }
+
   return (
     <main data-theme={theme} className="app-shell">
       <div className="page">
         <header className="card header-card">
           <div className="title-group">
-            <span className="brand-mark">
-              <Sparkles className="icon" />
-            </span>
-            <div>
-              <h1 className="heading">{roadmapData.meta.projectName}</h1>
-              <p className="text-muted">{roadmapData.meta.subtitle}</p>
-            </div>
-            <InfoTip text={roadmapData.meta.currentState} align="left" />
+            <h1 className="heading">{roadmapData.meta.projectName} Roadmap</h1>
           </div>
           <div className="toolbar">
             <button
@@ -512,6 +618,21 @@ function App() {
             </button>
           </div>
         </header>
+
+        <section className="card command-bar" aria-label="Owner command bar">
+          <form className="command-form" onSubmit={runManagerDraft}>
+            <label className="command-field">
+              <span className="sr-only">Command the Manager</span>
+              <textarea className="command-input" maxLength={4000} onChange={(event) => {
+                setManagerRequest(event.target.value);
+                setConfirmationRequired(consequentialCommand.test(event.target.value));
+              }} placeholder="Write a command for your Manager…" required rows={1} value={managerRequest} />
+            </label>
+            <button aria-label="Send command" className="command-send" disabled={ownerBusy || voiceListening || !managerRequest.trim()} type="submit"><Send className="icon-small" /><span>{ownerBusy ? "Working…" : confirmationRequired ? "Confirm & run" : "Send"}</span></button>
+            <button aria-label="Hold to talk" className={`command-talk ${voiceListening ? "command-talk-active" : ""}`} disabled={ownerBusy} onPointerDown={startVoiceCommand} onPointerLeave={stopVoiceCommand} onPointerUp={stopVoiceCommand} type="button"><Mic className="icon-small" /><span>{voiceListening ? "Listening…" : "Hold to talk"}</span></button>
+          </form>
+          <div className="command-meta"><span className="text-muted">Signed in as {ownerSession.user.email}</span>{ownerMessage ? <span className="owner-message" role="status">{ownerMessage}</span> : <span className="text-muted">Commands are routed through the Manager approval system.</span>}</div>
+        </section>
 
         {ownerModalOpen ? (
           <div className="admin-modal-backdrop" role="presentation">
@@ -632,7 +753,7 @@ function App() {
         <section className="card">
           <div className="section-header">
             <div className="section-title">
-              <h2 className="heading">Aims Agents</h2>
+              <h2 className="heading">AiM Team</h2>
               <Pill className="tag-info">{agentCompletion}% total</Pill>
             </div>
             <div className="toolbar">
@@ -661,6 +782,9 @@ function App() {
                     <span className="role-cell">
                       <span className="heading text-muted">{String(index + 1).padStart(2, "0")}</span>
                       <span className="truncate">{agent.name}</span>
+                      {agent.nextFocus ? (
+                        <Pill className="tag-danger tag-icon" tip={agent.statusAction}><Search className="icon-tiny" /></Pill>
+                      ) : null}
                       <InfoTip text={`${agent.compact} ${agent.purpose}`} align="left" />
                     </span>
                     <Pill className={statusClasses[agent.status]} tip={agent.statusAction}>
@@ -674,79 +798,86 @@ function App() {
                   </button>
 
                   {isOpen && (
-                    <div className="detail-grid">
-                      <div>
-                        <div className="detail-heading">
-                          <CircleDot className="icon-small text-mint" />
-                          <h3 className="heading">Requirements</h3>
-                        </div>
-                        <div className="tag-list">
-                          {agent.requirements.map((item) => (
-                            <span key={item} className="tag tag-neutral">
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                        {agent.id === "manager" ? (
-                          <div className="control-panel">
-                            <span className="text-muted">Lifecycle</span>
-                            <div className="tag-list">
-                              {managerControlPlane.taskLifecycle.map((state) => (
-                                <span key={state} className="tag tag-neutral">
-                                  {state}
-                                </span>
-                              ))}
+                    agent.id === "manager" ? (
+                      <div className="manager-command-center">
+                        <section className="manager-hero">
+                          <div className="manager-identity">
+                            <div>
+                              <div className="manager-title-line">
+                                <h3 className="heading">Team Lead Agent</h3>
+                                <Pill className={statusClasses[agent.status]}>{agent.status}</Pill>
+                              </div>
+                              <p className="manager-purpose">{agent.purpose}</p>
+                              <span className="text-muted">Authority owner: {agent.owner}</span>
                             </div>
                           </div>
-                        ) : null}
-                      </div>
-                      <div>
-                        <div className="detail-heading">
-                          <ClipboardList className="icon-small text-saffron" />
-                          <h3 className="heading">Todo</h3>
-                        </div>
-                        <ul className="stack-list">
-                          {agent.todos.map((todo) => (
-                            <li key={todo} className="list-line">
-                              <CheckCircle2 className="icon-small text-mint" />
-                              <span>{todo}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <div className="detail-heading">
-                          <ShieldCheck className="icon-small text-coral" />
-                          <h3 className="heading">Tools and Risks</h3>
-                        </div>
-                        <div className="tag-list">
-                          {agent.tools.map((tool) => (
-                            <span key={tool} className="tag tag-neutral">
-                              {tool}
-                            </span>
-                          ))}
-                        </div>
-                        <ul className="stack-list compact">
-                          {agent.risks.map((risk) => (
-                            <li key={risk} className="text-muted">
-                              {risk}
-                            </li>
-                          ))}
-                        </ul>
-                        {agent.id === "manager" ? (
-                          <div className="control-panel">
-                            <span className="text-muted">Run log</span>
-                            <div className="tag-list">
-                              {managerControlPlane.runLogFields.map((field) => (
-                                <span key={field} className="tag tag-neutral">
-                                  {field}
-                                </span>
+                          <div className="manager-metrics">
+                            <div><strong>{agent.progress}%</strong><span>Operational readiness</span></div>
+                            <div><strong>{agent.tools.length}</strong><span>Action capabilities</span></div>
+                            <div><strong>{managerControlPlane.approvalMatrix.length}</strong><span>Authority rules</span></div>
+                            <div><strong>{managerRuns.length}</strong><span>Recorded activities</span></div>
+                          </div>
+                        </section>
+
+                        <div className="manager-grid">
+                          <ManagerSection title="Role & responsibilities" subtitle="What the Team Lead owns" progress={managerControlPlane.sectionProgress.roles} open={managerSectionsOpen.includes("roles")} onToggle={() => toggleManagerSection("roles")}>
+                            <ul className="manager-list">
+                              {agent.requirements.map((item) => <li key={item}><CheckCircle2 className="icon-small text-mint" /><span>{item}</span></li>)}
+                            </ul>
+                          </ManagerSection>
+
+                          <ManagerSection className="manager-panel-wide" title="Authority & approval boundaries" subtitle="Independent actions and human approval limits" progress={managerControlPlane.sectionProgress.authority} open={managerSectionsOpen.includes("authority")} onToggle={() => toggleManagerSection("authority")}>
+                            <div className="authority-table">
+                              <div className="authority-head"><span>Action</span><span>Authority</span><span>Approver</span></div>
+                              {managerControlPlane.approvalMatrix.map((rule) => (
+                                <div key={rule.action} className="authority-row">
+                                  <span>{rule.action}</span>
+                                  <Pill className={rule.approval === "Required" ? "tag-warning" : "tag-success"}>{rule.approval}</Pill>
+                                  <span className="text-muted">{rule.approver}</span>
+                                </div>
                               ))}
                             </div>
-                          </div>
-                        ) : null}
+                          </ManagerSection>
+
+                          <ManagerSection title="Action capabilities" subtitle="Systems the Manager can coordinate" progress={managerControlPlane.sectionProgress.capabilities} open={managerSectionsOpen.includes("capabilities")} onToggle={() => toggleManagerSection("capabilities")}>
+                            <div className="capability-grid">
+                              {agent.tools.map((tool) => <div key={tool} className="capability-item"><CheckCircle2 className="icon-small text-mint" /><span>{tool}</span></div>)}
+                            </div>
+                          </ManagerSection>
+
+                          <ManagerSection className="manager-panel-full" title="Task management flow" subtitle="Controlled stages for every task" progress={managerControlPlane.sectionProgress.tasks} open={managerSectionsOpen.includes("tasks")} onToggle={() => toggleManagerSection("tasks")}>
+                            <ol className="lifecycle-flow">
+                              {managerControlPlane.taskLifecycle.map((state, stateIndex) => <li key={state}><span>{String(stateIndex + 1).padStart(2, "0")}</span><strong>{state.replace(/_/g, " ")}</strong></li>)}
+                            </ol>
+                          </ManagerSection>
+
+                          <ManagerSection title="Current priorities" subtitle="Work that should happen next" progress={managerControlPlane.sectionProgress.priorities} open={managerSectionsOpen.includes("priorities")} onToggle={() => toggleManagerSection("priorities")}>
+                            <ul className="manager-list">{agent.todos.map((todo) => <li key={todo}><CheckCircle2 className="icon-small text-mint" /><span>{todo}</span></li>)}</ul>
+                          </ManagerSection>
+
+                          <ManagerSection title="Guardrails & risks" subtitle="Conditions that limit Manager action" progress={managerControlPlane.sectionProgress.guardrails} open={managerSectionsOpen.includes("guardrails")} onToggle={() => toggleManagerSection("guardrails")}>
+                            <ul className="manager-list risk-list">{agent.risks.map((risk) => <li key={risk}><ShieldCheck className="icon-small text-coral" /><span>{risk}</span></li>)}</ul>
+                          </ManagerSection>
+
+                          <ManagerSection className="manager-panel-full" title="Recent activity" subtitle={`${managerRuns.length} routed runs, decisions, and next actions`} progress={managerControlPlane.sectionProgress.activity} open={managerSectionsOpen.includes("activity")} onToggle={() => toggleManagerSection("activity")}>
+                            <div className="activity-list">
+                              {managerRuns.length > 0 ? managerRuns.map((run) => (
+                                <article key={run.run_id} className="activity-row">
+                                  <div className="activity-main"><strong>{run.request}</strong><span>{run.decision}</span><span className="text-muted">Next: {run.next_action}</span></div>
+                                  <div className="activity-meta"><Pill className="tag-neutral">{run.agent}</Pill><Pill className={runStatusClass(run.status)}>{run.status}</Pill><Pill className={run.approval_required ? "tag-warning" : "tag-success"}>{run.approval_required ? "approval needed" : "no approval"}</Pill><span className="text-muted">{formatRunTime(run.timestamp)}</span></div>
+                                </article>
+                              )) : <div className="run-empty">No Manager activity recorded yet.</div>}
+                            </div>
+                          </ManagerSection>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="detail-grid">
+                        <div><div className="detail-heading"><CircleDot className="icon-small text-mint" /><h3 className="heading">Requirements</h3></div><div className="tag-list">{agent.requirements.map((item) => <span key={item} className="tag tag-neutral">{item}</span>)}</div></div>
+                        <div><div className="detail-heading"><ClipboardList className="icon-small text-saffron" /><h3 className="heading">Todo</h3></div><ul className="stack-list">{agent.todos.map((todo) => <li key={todo} className="list-line"><CheckCircle2 className="icon-small text-mint" /><span>{todo}</span></li>)}</ul></div>
+                        <div><div className="detail-heading"><ShieldCheck className="icon-small text-coral" /><h3 className="heading">Tools and Risks</h3></div><div className="tag-list">{agent.tools.map((tool) => <span key={tool} className="tag tag-neutral">{tool}</span>)}</div><ul className="stack-list compact">{agent.risks.map((risk) => <li key={risk} className="text-muted">{risk}</li>)}</ul></div>
+                      </div>
+                    )
                   )}
                 </article>
               );
@@ -757,7 +888,7 @@ function App() {
         <section className="card">
             <div className="section-header">
               <div className="section-title">
-                <h2 className="heading">Roadmap Phases</h2>
+                <h2 className="heading">Progress Steps</h2>
                 <Pill className="tag-info">{phaseCompletion}% total</Pill>
               </div>
               <div className="toolbar">
@@ -791,8 +922,8 @@ function App() {
                           </Pill>
                         ) : null}
                       </span>
-                      <Pill className={modeClasses[phase.mode]} tip={phase.statusAction}>
-                        {phase.mode}
+                      <Pill className={statusClasses[phase.status]} tip={phase.statusAction}>
+                        {phase.status}
                       </Pill>
                       <span className="count">{phase.progress}%</span>
                       <ChevronDown className={`icon-muted ${isOpen ? "rotate" : ""}`} />
@@ -815,11 +946,11 @@ function App() {
         <section className="card pad">
               <div className="collapse-heading stack-heading">
                 <div className="detail-heading">
-                  <h2 className="heading">Independent Stack</h2>
+                  <h2 className="heading">Tech Stack</h2>
                   <Pill className="tag-info">{stackCompletion}% total</Pill>
                   <InfoTip text="Each stack item now carries its actual setup status. Only the current frontend layer is active today." />
                 </div>
-                <IconButton label={stackOpen ? "Collapse Independent Stack" : "Expand Independent Stack"} onClick={() => setStackOpen((open) => !open)}>
+                <IconButton label={stackOpen ? "Collapse Tech Stack" : "Expand Tech Stack"} onClick={() => setStackOpen((open) => !open)}>
                   <ChevronDown className={`icon-small ${stackOpen ? "rotate" : ""}`} />
                 </IconButton>
               </div>
@@ -828,6 +959,7 @@ function App() {
                   {stack.map((item) => (
                     <div key={item.name} className="stack-row">
                       <span className="truncate">{item.name}</span>
+                      {item.nextFocus ? <Pill className="tag-danger tag-icon" tip={item.next}><Search className="icon-tiny" /></Pill> : null}
                       <Pill className={statusClasses[item.status]} tip={item.next}>
                         {item.status}
                       </Pill>
@@ -879,71 +1011,39 @@ function App() {
         <section className="card pad">
           <div className="collapse-heading stack-heading">
             <div className="detail-heading">
-              <h2 className="heading">Latest Manager Runs</h2>
-              <Pill className="tag-info">{managerRuns.length}</Pill>
-              <InfoTip text="Latest Manager Agent runs mirrored from the persistent task and run-log store." />
-            </div>
-            <IconButton label={managerRunsOpen ? "Collapse Latest Manager Runs" : "Expand Latest Manager Runs"} onClick={() => setManagerRunsOpen((open) => !open)}>
-              <ChevronDown className={`icon-small ${managerRunsOpen ? "rotate" : ""}`} />
-            </IconButton>
-          </div>
-          {managerRunsOpen ? (
-            <div className="run-list">
-              {managerRuns.length > 0 ? (
-                managerRuns.map((run) => (
-                  <article key={run.run_id} className="run-row">
-                    <div className="run-main">
-                      <div className="run-title-line">
-                        <span className="truncate">{run.request}</span>
-                        <InfoTip text={run.next_action} />
-                      </div>
-                      <span className="text-muted truncate">{run.run_id}</span>
-                    </div>
-                    <Pill className="tag-neutral">{run.agent}</Pill>
-                    <Pill className={runStatusClass(run.status)}>{run.status}</Pill>
-                    <Pill className={run.approval_required ? "tag-warning" : "tag-success"}>
-                      {run.approval_required ? "approval" : "logged"}
-                    </Pill>
-                    <span className="text-muted">{run.mode}</span>
-                    <span className="text-muted">{formatRunTime(run.timestamp)}</span>
-                  </article>
-                ))
-              ) : (
-                <div className="run-empty">No Manager Agent runs logged yet.</div>
-              )}
-            </div>
-          ) : null}
-        </section>
-
-        <section className="card pad">
-          <div className="collapse-heading stack-heading">
-            <div className="detail-heading">
               <h2 className="heading">{workRound.title}</h2>
               <InfoTip text={workRound.lastCompleted} />
             </div>
-            <IconButton label={workRoundOpen ? "Collapse Codex Work Round" : "Expand Codex Work Round"} onClick={() => setWorkRoundOpen((open) => !open)}>
+            <IconButton label={workRoundOpen ? "Collapse Instructions" : "Expand Instructions"} onClick={() => setWorkRoundOpen((open) => !open)}>
               <ChevronDown className={`icon-small ${workRoundOpen ? "rotate" : ""}`} />
             </IconButton>
           </div>
           {workRoundOpen ? (
-            <div className="work-flow">
-              <div>
-                <span className="text-muted">Triggers</span>
-                <ul className="stack-list compact">
-                  {workRound.triggerModes.map((mode) => (
-                    <li key={mode} className="text-muted">
-                      {mode}
-                    </li>
+            <div className="instructions-content">
+              <div className="status-legend-block">
+                <span className="text-muted">Status meanings</span>
+                <div className="status-legend">
+                  {statusMeanings.map((item) => (
+                    <div key={item.status} className="status-meaning">
+                      <Pill className={statusClasses[item.status]}>{item.status}</Pill>
+                      <span className="text-muted">{item.meaning}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
-              <div>
-                <span className="text-muted">Round steps</span>
-                <ol className="work-steps">
-                  {workRound.steps.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
+              <div className="work-flow">
+                <div>
+                  <span className="text-muted">Triggers</span>
+                  <ul className="stack-list compact">
+                    {workRound.triggerModes.map((mode) => <li key={mode} className="text-muted">{mode}</li>)}
+                  </ul>
+                </div>
+                <div>
+                  <span className="text-muted">Steps</span>
+                  <ol className="work-steps">
+                    {workRound.steps.map((step) => <li key={step}>{step}</li>)}
+                  </ol>
+                </div>
               </div>
             </div>
           ) : null}

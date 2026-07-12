@@ -4,7 +4,7 @@
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
     "currentState": "The roadmap is private behind Supabase login, the production Roadmap and Manager endpoints are configured and reject unauthenticated requests, and the owner control bar is available after sign-in.",
-    "nextFocus": "Connect the protected Realtime client secret to a browser WebRTC audio session, stream the live transcript, and require confirmation before consequential voice commands."
+    "nextFocus": "Run an authenticated production microphone smoke test for the recovered Realtime WebRTC flow, then record the result and any browser-specific issues."
   },
   "stats": [
     {
@@ -96,7 +96,7 @@
       ],
       "progress": 36,
       "status": "in process",
-      "statusAction": "Cloud storage is online; the active work is the authenticated Manager API boundary.",
+      "statusAction": "The authenticated Manager and Realtime API boundaries are implemented; the active work is production voice verification.",
       "priority": "P0",
       "nextFocus": true
     },
@@ -468,10 +468,10 @@
       "title": "Hold-to-Talk Voice",
       "mode": "build",
       "status": "active",
-      "progress": 40,
-      "summary": "Press-and-hold speech capture, live command transcription, spoken routing feedback, and a protected short-lived OpenAI Realtime client-secret endpoint are implemented.",
-      "todo": "Connect the client secret to WebRTC audio, stream Realtime transcription events into the command bar, and add confirmations for consequential voice commands.",
-      "statusAction": "Active next focus: complete the authenticated WebRTC voice session and command confirmation flow.",
+      "progress": 85,
+      "summary": "Authenticated press-and-hold capture now opens a short-lived OpenAI Realtime WebRTC session, streams transcription into the Manager command bar, and requires explicit confirmation for consequential commands.",
+      "todo": "Run an authenticated production microphone smoke test and document any browser-specific permission or connection issues.",
+      "statusAction": "Code complete; active next focus is production microphone and Realtime session verification.",
       "nextFocus": true
     },
     {
@@ -537,9 +537,9 @@
     },
     {
       "name": "OpenAI Realtime API",
-      "status": "in process",
-      "progress": 40,
-      "next": "Connect the protected client secret to WebRTC audio and add confirmation gates for consequential commands.",
+      "status": "active",
+      "progress": 85,
+      "next": "Verify the authenticated WebRTC session, live transcription, and confirmation gate in production with microphone permission.",
       "nextFocus": true
     }
   ],

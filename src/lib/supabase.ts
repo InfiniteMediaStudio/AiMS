@@ -19,21 +19,22 @@ export type HostedRoadmap<T> = {
   updatedAt: string;
 };
 
-export async function loadRoadmapDocument<T>(slug: string): Promise<HostedRoadmap<T> | null> {
-  if (!supabase) return null;
+export async function loadRoadmapDocument<T>(accessToken: string): Promise<HostedRoadmap<T>> {
+  const response = await fetch("/api/roadmap", { headers: { authorization: `Bearer ${accessToken}` } });
+  const isJson = response.headers.get("content-type")?.includes("application/json");
+  if (isJson) {
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error ?? "Hosted roadmap could not be loaded.");
+    return { document: data.document as T, version: data.version, updatedAt: data.updated_at };
+  }
 
+  if (!supabase) throw new Error("Supabase is not configured.");
   const { data, error } = await supabase
     .from("roadmap_documents")
     .select("document, version, updated_at")
-    .eq("slug", slug)
-    .maybeSingle();
-
-  if (error) {
-    console.warn("Hosted roadmap is unavailable; using the bundled roadmap.", error.message);
-    return null;
-  }
-
-  if (!data?.document) return null;
+    .eq("slug", "aims-roadmap")
+    .single();
+  if (error) throw error;
   return {
     document: data.document as T,
     version: data.version,
@@ -61,7 +62,7 @@ export async function signInRoadmapOwner(email: string, password: string) {
 
 export async function signOutRoadmapOwner() {
   if (!supabase) return;
-  const { error } = await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut({ scope: "local" });
   if (error) throw error;
 }
 
@@ -81,6 +82,7 @@ export async function saveRoadmapDocument<T>(document: T, expectedVersion: numbe
 
 export async function loadOnlineManagerRuns<T>(accessToken: string): Promise<T[]> {
   const response = await fetch("/api/manager", { headers: { authorization: `Bearer ${accessToken}` } });
+  if (!response.headers.get("content-type")?.includes("application/json")) return [];
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.error ?? "Manager runs could not be loaded.");
   return payload.runs as T[];
@@ -99,6 +101,9 @@ export async function createOnlineManagerRun<T>(request: string, accessToken: st
 
 export async function createRealtimeClientSecret(accessToken: string) {
   const response = await fetch("/api/realtime", { method: "POST", headers: { authorization: `Bearer ${accessToken}` } });
+  if (!response.headers.get("content-type")?.includes("application/json")) {
+    throw new Error("Realtime voice API returned an invalid response.");
+  }
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.error ?? "Realtime voice session could not be created.");
   return payload as { value: string; expires_at: number };
