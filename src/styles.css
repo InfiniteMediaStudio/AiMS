@@ -61,6 +61,13 @@ select {
     @apply min-h-screen bg-[var(--bg)] text-[var(--text)];
   }
 
+  .auth-shell { @apply flex items-center justify-center p-4; }
+  .auth-card { @apply grid w-full max-w-sm gap-5 p-5; }
+  .auth-brand { @apply flex items-center justify-between; }
+  .auth-brand > span { @apply text-[22px] font-medium; }
+  .auth-submit { @apply mt-1 w-full; }
+  .auth-loading { @apply text-[13px] text-[var(--muted)]; }
+
   .page {
     @apply mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 lg:px-6;
   }
@@ -76,6 +83,16 @@ select {
   .header-card {
     @apply flex flex-row items-center justify-between gap-3 p-4;
   }
+
+  .command-bar { @apply grid gap-2 p-3; }
+  .command-form { @apply grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto]; }
+  .command-field { @apply min-w-0; }
+  .command-input { @apply min-h-10 w-full resize-none rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-2 text-[13px] leading-5 text-[var(--text)] outline-none focus:border-mint; }
+  .command-send, .command-talk { @apply inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 text-[12px] font-medium transition disabled:cursor-not-allowed disabled:opacity-50; }
+  .command-send { @apply bg-mint text-ink hover:opacity-90; }
+  .command-talk { @apply border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--text)] hover:border-mint; }
+  .command-talk-active { @apply border-coral bg-coral/10 text-coral; }
+  .command-meta { @apply flex flex-wrap items-center justify-between gap-2 text-[12px]; }
 
   .title-group,
   .section-title,
@@ -258,6 +275,167 @@ select {
     @apply grid gap-4 border-t border-[var(--line)] bg-[var(--subtle)] p-4 lg:grid-cols-[1fr_1fr_1fr];
   }
 
+  .manager-command-center {
+    @apply border-t border-[var(--line)] bg-[var(--subtle)] p-3;
+  }
+
+  .manager-hero {
+    @apply grid gap-3 rounded-lg border border-[var(--line)] bg-[var(--panel)] p-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center;
+  }
+
+  .manager-identity {
+    @apply flex items-start gap-3;
+  }
+
+  .manager-avatar {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-mint/10 text-mint;
+  }
+
+  .manager-title-line {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .manager-purpose {
+    @apply my-0.5 max-w-2xl text-[13px] leading-5 text-[var(--text)];
+  }
+
+  .manager-metrics {
+    @apply grid grid-cols-2 gap-2 sm:grid-cols-4;
+  }
+
+  .manager-metrics > div {
+    @apply grid min-w-20 gap-0.5 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-2.5 py-1.5;
+  }
+
+  .manager-metrics strong {
+    @apply text-[15px] font-medium;
+  }
+
+  .manager-metrics span {
+    @apply text-[11px] uppercase leading-4 tracking-wide text-[var(--muted)];
+  }
+
+  .manager-grid {
+    @apply mt-2 grid gap-2 lg:grid-cols-2;
+  }
+
+  .manager-panel {
+    @apply min-w-0 overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel)];
+  }
+
+  .manager-panel-wide,
+  .manager-panel-full {
+    @apply lg:col-span-2;
+  }
+
+  .manager-panel-toggle {
+    @apply grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 px-3 py-2 text-left transition hover:bg-[var(--hover)];
+  }
+
+  .manager-panel-copy {
+    @apply grid min-w-0 gap-0.5;
+  }
+
+  .manager-panel-copy strong {
+    @apply truncate text-[13px] font-medium;
+  }
+
+  .manager-panel-copy > span {
+    @apply truncate text-[11px] text-[var(--muted)];
+  }
+
+  .manager-panel-body {
+    @apply border-t border-[var(--line)] p-3;
+  }
+
+  .manager-list {
+    @apply m-0 grid list-none gap-2 p-0;
+  }
+
+  .manager-list li {
+    @apply flex items-start gap-2 rounded-md bg-[var(--subtle)] px-3 py-2 text-[13px] leading-5;
+  }
+
+  .manager-list svg {
+    @apply mt-0.5 shrink-0;
+  }
+
+  .capability-grid {
+    @apply grid gap-2 sm:grid-cols-2;
+  }
+
+  .capability-item {
+    @apply flex items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-3 text-[13px];
+  }
+
+  .authority-table {
+    @apply overflow-hidden rounded-md border border-[var(--line)];
+  }
+
+  .authority-head,
+  .authority-row {
+    @apply grid items-center gap-3 px-3 py-2;
+    grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr);
+  }
+
+  .authority-head {
+    @apply bg-[var(--subtle)] text-[11px] font-medium uppercase tracking-wide text-[var(--muted)];
+  }
+
+  .authority-row {
+    @apply border-t border-[var(--line)] text-[13px];
+  }
+
+  .lifecycle-flow {
+    @apply m-0 grid list-none gap-2 p-0 sm:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .lifecycle-flow li {
+    @apply flex items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-2;
+  }
+
+  .lifecycle-flow li > span {
+    @apply text-[11px] font-medium text-mint;
+  }
+
+  .lifecycle-flow li > strong {
+    @apply text-[12px] font-medium capitalize;
+  }
+
+  .activity-list {
+    @apply overflow-hidden rounded-md border border-[var(--line)];
+  }
+
+  .activity-row {
+    @apply grid gap-3 border-b border-[var(--line)] bg-[var(--subtle)] p-3 last:border-b-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center;
+  }
+
+  .activity-main {
+    @apply grid min-w-0 gap-1;
+  }
+
+  .activity-main strong {
+    @apply text-[13px] font-medium;
+  }
+
+  .activity-main > span {
+    @apply text-[12px];
+  }
+
+  .activity-meta {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  @media (max-width: 639px) {
+    .authority-head {
+      @apply hidden;
+    }
+
+    .authority-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .collapse-heading {
     @apply flex items-center justify-between gap-3;
   }
@@ -268,6 +446,30 @@ select {
 
   .run-list {
     @apply divide-y divide-[var(--line)];
+  }
+
+  .manager-runs-panel {
+    @apply border-t border-[var(--line)] bg-[var(--subtle)] p-4;
+  }
+
+  .manager-runs-panel .run-list {
+    @apply mt-3 overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel)];
+  }
+
+  .status-legend {
+    @apply grid gap-2 md:grid-cols-2;
+  }
+
+  .instructions-content {
+    @apply mt-3 grid gap-4;
+  }
+
+  .status-legend-block {
+    @apply grid gap-2;
+  }
+
+  .status-meaning {
+    @apply flex items-center gap-3 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-3;
   }
 
   .run-row {
@@ -351,7 +553,7 @@ select {
   }
 
   .stack-row {
-    @apply grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-2;
+    @apply grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--subtle)] px-3 py-2;
   }
 
   .tag-wrap,

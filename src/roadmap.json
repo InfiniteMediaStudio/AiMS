@@ -1,10 +1,10 @@
 {
   "meta": {
-    "projectName": "AiMS",
+    "projectName": "AiM",
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
-    "currentState": "The roadmap is now hosted in Supabase and served by Vercel. The active phase is Online Manager API, with a protected, version-checked roadmap endpoint being added before voice control.",
-    "nextFocus": "Configure the server-only Supabase variables and admin allowlist in Vercel, verify the authenticated roadmap API, then add the owner sign-in flow."
+    "currentState": "The roadmap is private behind Supabase login, the production Roadmap and Manager endpoints are configured and reject unauthenticated requests, and the owner control bar is available after sign-in.",
+    "nextFocus": "Connect the protected Realtime client secret to a browser WebRTC audio session, stream the live transcript, and require confirmation before consequential voice commands."
   },
   "stats": [
     {
@@ -98,7 +98,7 @@
       "status": "in process",
       "statusAction": "Cloud storage is online; the active work is the authenticated Manager API boundary.",
       "priority": "P0",
-      "nextFocus": false
+      "nextFocus": true
     },
     {
       "id": "design",
@@ -386,6 +386,7 @@
       "number": "01",
       "title": "Requirement Freeze",
       "mode": "freeze",
+      "status": "active",
       "progress": 58,
       "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle, approval rules, local persistence shape, and routing/approval eval expectations are now frozen.",
       "todo": "Keep new scope behind Decisions Board before specialist agents are built.",
@@ -395,6 +396,7 @@
       "number": "02",
       "title": "Independent Core",
       "mode": "build",
+      "status": "in process",
       "progress": 26,
       "summary": "Build owned backend, database, scheduler, queue, and file/memory foundations. Manager Agent service endpoints, file-backed task/run persistence, and dashboard run mirroring are implemented.",
       "todo": "Promote the local file schema to PostgreSQL when production storage begins.",
@@ -404,6 +406,7 @@
       "number": "03",
       "title": "Agent MVP",
       "mode": "build",
+      "status": "in process",
       "progress": 24,
       "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates. Manager local MVP is ready; Social and Sales remain pending.",
       "todo": "Run live Manager smoke test when quota is unblocked, then start Social Agent MVP.",
@@ -413,6 +416,7 @@
       "number": "04",
       "title": "Delivery Agents",
       "mode": "scale",
+      "status": "pending",
       "progress": 0,
       "summary": "Add Development, Design, Video, and Google Market workflows after the control layer works.",
       "todo": "Define safe tool permissions per specialist.",
@@ -422,6 +426,7 @@
       "number": "05",
       "title": "Agency OS",
       "mode": "scale",
+      "status": "pending",
       "progress": 0,
       "summary": "Unify dashboards, reports, costs, schedules, evals, and role-based access.",
       "todo": "Create production hardening checklist.",
@@ -431,6 +436,7 @@
       "number": "06",
       "title": "Cloud Workspace",
       "mode": "build",
+      "status": "in process",
       "progress": 75,
       "summary": "The existing private GitHub repository is the source of truth, Codespaces configuration is present, CI validates cloud changes, and Vercel production deployment is working at https://ai-ms.vercel.app/.",
       "todo": "Verify Codespaces from GitHub and complete Supabase integration before moving application state online.",
@@ -440,6 +446,7 @@
       "number": "07",
       "title": "Hosted Roadmap Data",
       "mode": "build",
+      "status": "ready",
       "progress": 100,
       "summary": "Supabase is connected to GitHub, secured schema migrations apply successfully, and the production frontend loads the hosted aims-roadmap document with a bundled fallback.",
       "todo": "Keep future schema and seed changes versioned through GitHub migrations.",
@@ -449,25 +456,29 @@
       "number": "08",
       "title": "Online Manager API",
       "mode": "build",
-      "progress": 38,
-      "summary": "A protected Vercel Function now verifies Supabase users, enforces an admin email allowlist, and performs version-checked roadmap updates through a restricted database function.",
-      "todo": "Configure server-only Vercel variables, verify the endpoint in production, and add the owner sign-in flow.",
-      "statusAction": "Active next focus: configure and verify the authenticated online roadmap API.",
-      "nextFocus": true
+      "status": "ready",
+      "progress": 100,
+      "summary": "The private login gate, owner session, protected Vercel Roadmap and Manager endpoints, server configuration, admin allowlist, version-checked roadmap writes, and authenticated local roadmap loading are implemented. Production correctly rejects unauthenticated requests with HTTP 401.",
+      "todo": "Keep the protected endpoints and owner allowlist covered by deployment smoke checks.",
+      "statusAction": "Online Manager API is complete for the current roadmap foundation.",
+      "nextFocus": false
     },
     {
       "number": "09",
       "title": "Hold-to-Talk Voice",
       "mode": "build",
-      "progress": 5,
-      "summary": "Add a press-and-hold microphone control, live transcript, spoken status reports, structured roadmap commands, and confirmations for consequential actions.",
-      "todo": "Implement a short-lived Realtime session endpoint and the browser microphone interaction after the hosted Manager API is available.",
-      "statusAction": "OpenAI project target is selected; repository-local secret placement still needs approval."
+      "status": "active",
+      "progress": 40,
+      "summary": "Press-and-hold speech capture, live command transcription, spoken routing feedback, and a protected short-lived OpenAI Realtime client-secret endpoint are implemented.",
+      "todo": "Connect the client secret to WebRTC audio, stream Realtime transcription events into the command bar, and add confirmations for consequential voice commands.",
+      "statusAction": "Active next focus: complete the authenticated WebRTC voice session and command confirmation flow.",
+      "nextFocus": true
     },
     {
       "number": "10",
       "title": "Background Work",
       "mode": "scale",
+      "status": "pending",
       "progress": 0,
       "summary": "Run bounded cloud tasks, scheduled status reports, CI checks, and approved maintenance while the owner's laptop is offline.",
       "todo": "Define safe scheduled jobs and connect GitHub Actions or Codex cloud tasks with audit logs and approval gates.",
@@ -520,18 +531,20 @@
     {
       "name": "Supabase",
       "status": "active",
-      "progress": 90,
-      "next": "Hosted reads are active; finish authenticated API writes and owner sign-in."
+      "progress": 100,
+      "next": "Hosted reads are active; finish authenticated API writes and owner sign-in.",
+      "nextFocus": false
     },
     {
       "name": "OpenAI Realtime API",
       "status": "in process",
-      "progress": 5,
-      "next": "Add hold-to-talk after the hosted Manager API and server-only secret configuration are available."
+      "progress": 40,
+      "next": "Connect the protected client secret to WebRTC audio and add confirmation gates for consequential commands.",
+      "nextFocus": true
     }
   ],
   "workRound": {
-    "title": "Codex Work Round",
+    "title": "Instructions",
     "triggerModes": [
       "Direct request: complete the requested roadmap or implementation task, even if it changes scope.",
       "Next focus request: find the active nextFocus item, complete the highest-priority work it implies, then update roadmap state."
@@ -547,6 +560,15 @@
     "lastCompleted": "Completed hosted roadmap storage, moved next-focus tracking into Roadmap Phases, added section completion totals, and implemented the protected version-checked roadmap API boundary."
   },
   "managerControlPlane": {
+    "sectionProgress": {
+      "roles": 80,
+      "authority": 100,
+      "capabilities": 55,
+      "tasks": 75,
+      "priorities": 35,
+      "guardrails": 70,
+      "activity": 65
+    },
     "taskLifecycle": [
       "intake",
       "triage",
