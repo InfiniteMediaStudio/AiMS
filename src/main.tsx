@@ -11,10 +11,14 @@ import {
   ClipboardList,
   CloudUpload,
   Info,
+  LayoutDashboard,
   LogIn,
   LogOut,
+  Map,
   Mic,
   Moon,
+  Bot,
+  BookOpen,
   Search,
   Send,
   ShieldCheck,
@@ -33,9 +37,11 @@ import {
   signOutRoadmapOwner,
   subscribeToRoadmapSession,
 } from "./lib/supabase";
+import bundledRoadmap from "./roadmap.json";
 import "./styles.css";
 
 type Theme = "dark" | "light";
+type WorkspacePage = "overview" | "agents" | "delivery" | "operating";
 
 type RealtimeEvent = {
   type: string;
@@ -120,8 +126,13 @@ type ManagerRun = {
 
 type WorkRound = {
   title: string;
+  purpose: string;
+  goals: string[];
+  commands: Array<{ command: string; action: string }>;
   triggerModes: string[];
   steps: string[];
+  agentPlanningFields: string[];
+  projectWorkflow: Array<{ stage: string; outcome: string; exitCriteria: string }>;
   lastCompleted: string;
 };
 
@@ -150,9 +161,12 @@ type RoadmapData = {
 const emptyRoadmap: RoadmapData = {
   meta: { projectName: "AiM", subtitle: "Roadmap", version: "", currentState: "", nextFocus: "" },
   stats: [], agents: [], phases: [], stack: [], decisions: [],
-  workRound: { title: "Instructions", triggerModes: [], steps: [], lastCompleted: "" },
+  workRound: { title: "AiMS Operating Plan & Instructions", purpose: "", goals: [], commands: [], triggerModes: [], steps: [], agentPlanningFields: [], projectWorkflow: [], lastCompleted: "" },
   managerControlPlane: { taskLifecycle: [], approvalMatrix: [], runLogFields: [], sectionProgress: { roles: 80, authority: 100, capabilities: 55, tasks: 75, priorities: 35, guardrails: 70, activity: 65 } },
 };
+
+const bundledWorkRound = bundledRoadmap.workRound as WorkRound;
+const bundledDecisions = bundledRoadmap.decisions as Decision[];
 
 function normalizeRoadmap(document: RoadmapData): RoadmapData {
   return {
@@ -163,7 +177,13 @@ function normalizeRoadmap(document: RoadmapData): RoadmapData {
       if (phase.number === "09") return { ...phase, progress: 40, status: "active", nextFocus: true };
       return { ...phase, status: phase.status ?? (phase.nextFocus ? "active" : phase.progress === 100 ? "ready" : phase.progress > 0 ? "in process" : "pending") };
     }),
-    workRound: { ...document.workRound, title: "Instructions" },
+    decisions: [
+      ...document.decisions,
+      ...bundledDecisions.filter((candidate) => !document.decisions.some((decision) => decision.label === candidate.label)),
+    ],
+    workRound: document.workRound?.goals?.length
+      ? { ...bundledWorkRound, ...document.workRound, title: "AiMS Operating Plan & Instructions" }
+      : bundledWorkRound,
     managerControlPlane: {
       ...document.managerControlPlane,
       sectionProgress: { ...emptyRoadmap.managerControlPlane.sectionProgress, ...document.managerControlPlane?.sectionProgress },
@@ -311,11 +331,11 @@ function App() {
   const [roadmapData, setRoadmapData] = useState<RoadmapData>(emptyRoadmap);
   const [roadmapLoaded, setRoadmapLoaded] = useState(false);
   const [theme, setTheme] = useState<Theme>("dark");
+  const [activePage, setActivePage] = useState<WorkspacePage>("overview");
   const [expandedAgents, setExpandedAgents] = useState<string[]>([]);
   const [expandedPhases, setExpandedPhases] = useState<string[]>([]);
   const [stackOpen, setStackOpen] = useState(false);
-  const [decisionsOpen, setDecisionsOpen] = useState(false);
-  const [workRoundOpen, setWorkRoundOpen] = useState(false);
+  const [workRoundOpen, setWorkRoundOpen] = useState(true);
   const [managerSectionsOpen, setManagerSectionsOpen] = useState<string[]>([]);
   const [hostedVersion, setHostedVersion] = useState<number | null>(null);
   const [ownerSession, setOwnerSession] = useState<Session | null>(null);
@@ -348,6 +368,16 @@ function App() {
   const agentCompletion = averageProgress(agents.map((agent) => agent.progress));
   const phaseCompletion = averageProgress(phases.map((phase) => phase.progress));
   const stackCompletion = averageProgress(stack.map((item) => item.progress));
+  const activeAgent = agents.find((agent) => agent.nextFocus) ?? agents[0];
+  const activePhase = phases.find((phase) => phase.nextFocus) ?? phases[0];
+  const decidedCount = decisions.filter((decision) => decision.status === "decided").length;
+  const pendingDecisionCount = decisions.filter((decision) => decision.status === "pending").length;
+  const navigation: Array<{ id: WorkspacePage; label: string; hint: string; icon: React.ReactNode }> = [
+    { id: "overview", label: "Overview", hint: "Focus, health, and recent state", icon: <LayoutDashboard className="icon-small" /> },
+    { id: "agents", label: "AI Team", hint: "Roles, authority, tools, and readiness", icon: <Bot className="icon-small" /> },
+    { id: "delivery", label: "Delivery", hint: "Phases, dependencies, and technology", icon: <Map className="icon-small" /> },
+    { id: "operating", label: "Operating Plan", hint: "Instructions, workflow, and decisions", icon: <BookOpen className="icon-small" /> },
+  ];
   const statusMeanings: Array<{ status: Status; meaning: string }> = [
     { status: "active", meaning: "Ready and working, or currently has a task to do." },
     { status: "ready", meaning: "Ready to work, but idle or without an assigned task." },
@@ -629,6 +659,21 @@ function App() {
           </div>
         </header>
 
+        <nav aria-label="AiMS workspace" className="workspace-nav card">
+          {navigation.map((item) => (
+            <button
+              aria-current={activePage === item.id ? "page" : undefined}
+              className={`workspace-nav-item ${activePage === item.id ? "workspace-nav-active" : ""}`}
+              key={item.id}
+              onClick={() => setActivePage(item.id)}
+              type="button"
+            >
+              <span className="workspace-nav-icon">{item.icon}</span>
+              <span className="workspace-nav-copy"><strong>{item.label}</strong><small>{item.hint}</small></span>
+            </button>
+          ))}
+        </nav>
+
         <section className="card command-bar" aria-label="Owner command bar">
           <form className="command-form" onSubmit={runManagerDraft}>
             <label className="command-field">
@@ -748,6 +793,7 @@ function App() {
           </div>
         ) : null}
 
+        {activePage === "overview" ? <div className="workspace-page">
         <section className="card stats-grid">
           {roadmapData.stats.map((stat) => (
             <div key={stat.label} className="stat">
@@ -760,6 +806,29 @@ function App() {
           ))}
         </section>
 
+        <section className="overview-grid">
+          <article className="card focus-card">
+            <div className="focus-kicker"><Search className="icon-small" /><span>Recommended next focus</span></div>
+            <h2>{roadmapData.meta.nextFocus}</h2>
+            <p>{roadmapData.meta.currentState}</p>
+            <button className="focus-action" onClick={() => setActivePage("delivery")} type="button">Open delivery plan <ChevronDown className="icon-small focus-arrow" /></button>
+          </article>
+          <div className="overview-side">
+            <article className="card snapshot-card">
+              <span className="label">Active ownership</span>
+              <div className="snapshot-line"><Bot className="icon-small text-mint" /><div><strong>{activeAgent?.name ?? "Not assigned"}</strong><span>{activeAgent?.statusAction ?? "Choose the next agent focus."}</span></div><Pill className={activeAgent ? statusClasses[activeAgent.status] : "tag-muted"}>{activeAgent?.priority ?? "—"}</Pill></div>
+              <div className="snapshot-line"><Map className="icon-small text-saffron" /><div><strong>{activePhase?.title ?? "Not assigned"}</strong><span>{activePhase?.statusAction ?? "Choose the next delivery phase."}</span></div><span className="count">{activePhase?.progress ?? 0}%</span></div>
+            </article>
+            <article className="card governance-card">
+              <div><span className="label">Governance</span><strong>{decidedCount} frozen</strong></div>
+              <div><span className="label">Needs decision</span><strong className={pendingDecisionCount ? "text-saffron" : "text-mint"}>{pendingDecisionCount}</strong></div>
+              <button onClick={() => setActivePage("operating")} type="button">Review decisions</button>
+            </article>
+          </div>
+        </section>
+        </div> : null}
+
+        {activePage === "agents" ? <div className="workspace-page">
         <section className="card">
           <div className="section-header">
             <div className="section-title">
@@ -894,7 +963,9 @@ function App() {
             })}
           </div>
         </section>
+        </div> : null}
 
+        {activePage === "delivery" ? <div className="workspace-page">
         <section className="card">
             <div className="section-header">
               <div className="section-title">
@@ -979,45 +1050,9 @@ function App() {
                 </div>
               ) : null}
         </section>
+        </div> : null}
 
-        <section className="card pad">
-          <div className="collapse-heading stack-heading">
-            <div className="detail-heading">
-              <h2 className="heading">Decisions Board</h2>
-              <InfoTip text="This is our scope-control board: suggested items are recommendations, decided items are committed scope, and pending scope items need more discussion." />
-            </div>
-            <IconButton label={decisionsOpen ? "Collapse Decisions Board" : "Expand Decisions Board"} onClick={() => setDecisionsOpen((open) => !open)}>
-              <ChevronDown className={`icon-small ${decisionsOpen ? "rotate" : ""}`} />
-            </IconButton>
-          </div>
-          {decisionsOpen ? (
-            <div className="decision-board">
-              {decisionGroups.map((group) => (
-                <div key={group.status} className="decision-column">
-                  <div className="decision-column-head">
-                    <span>{group.title}</span>
-                    <Pill className={decisionClasses[group.status]}>{decisions.filter((decision) => decision.status === group.status).length}</Pill>
-                    <InfoTip text={group.note} />
-                  </div>
-                  <div className="decision-items">
-                    {decisions
-                      .filter((decision) => decision.status === group.status)
-                      .map((decision) => (
-                        <div key={decision.label} className="decision-item">
-                          <span className="truncate">{decision.label}</span>
-                          <InfoTip text={decision.detail} />
-                        </div>
-                      ))}
-                    {decisions.filter((decision) => decision.status === group.status).length === 0 ? (
-                      <div className="decision-empty">Nothing here yet.</div>
-                    ) : null}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </section>
-
+        {activePage === "operating" ? <div className="workspace-page">
         <section className="card pad">
           <div className="collapse-heading stack-heading">
             <div className="detail-heading">
@@ -1030,6 +1065,29 @@ function App() {
           </div>
           {workRoundOpen ? (
             <div className="instructions-content">
+              <div className="instruction-intro">
+                <span className="label">Planning purpose</span>
+                <p className="text-muted">{workRound.purpose}</p>
+              </div>
+              <div className="instruction-grid">
+                <div className="instruction-panel">
+                  <span className="label">Goals</span>
+                  <ul className="stack-list compact">
+                    {workRound.goals.map((goal) => <li key={goal}>{goal}</li>)}
+                  </ul>
+                </div>
+                <div className="instruction-panel">
+                  <span className="label">Command shortcuts</span>
+                  <div className="command-list">
+                    {workRound.commands.map((item) => (
+                      <div key={item.command} className="command-item">
+                        <code>{item.command}</code>
+                        <span className="text-muted">{item.action}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
               <div className="status-legend-block">
                 <span className="text-muted">Status meanings</span>
                 <div className="status-legend">
@@ -1055,9 +1113,54 @@ function App() {
                   </ol>
                 </div>
               </div>
+              <div className="instruction-panel">
+                <span className="label">Required plan for every AI agent</span>
+                <div className="planning-field-grid">
+                  {workRound.agentPlanningFields.map((field, index) => (
+                    <div key={field} className="planning-field"><span>{String(index + 1).padStart(2, "0")}</span>{field}</div>
+                  ))}
+                </div>
+              </div>
+              <div className="instruction-panel">
+                <span className="label">Project-management workflow</span>
+                <div className="workflow-table">
+                  <div className="workflow-row workflow-head"><span>Stage</span><span>Outcome</span><span>Exit criteria</span></div>
+                  {workRound.projectWorkflow.map((item) => (
+                    <div key={item.stage} className="workflow-row">
+                      <strong>{item.stage}</strong><span>{item.outcome}</span><span className="text-muted">{item.exitCriteria}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="instruction-panel">
+                <div className="detail-heading">
+                  <span className="label">Decision ledger</span>
+                  <InfoTip text="Decided items are binding scope. Suggested items are recommendations. Pending items need owner discussion before dependent work begins." />
+                </div>
+                <div className="decision-board">
+                  {decisionGroups.map((group) => (
+                    <div key={group.status} className="decision-column">
+                      <div className="decision-column-head">
+                        <span>{group.title}</span>
+                        <Pill className={decisionClasses[group.status]}>{decisions.filter((decision) => decision.status === group.status).length}</Pill>
+                        <InfoTip text={group.note} />
+                      </div>
+                      <div className="decision-items">
+                        {decisions.filter((decision) => decision.status === group.status).map((decision) => (
+                          <div key={decision.label} className="decision-item">
+                            <span className="truncate">{decision.label}</span><InfoTip text={decision.detail} />
+                          </div>
+                        ))}
+                        {decisions.filter((decision) => decision.status === group.status).length === 0 ? <div className="decision-empty">Nothing here yet.</div> : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : null}
         </section>
+        </div> : null}
       </div>
     </main>
   );

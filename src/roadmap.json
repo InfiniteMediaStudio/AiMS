@@ -2,9 +2,9 @@
   "meta": {
     "projectName": "AiM",
     "subtitle": "Roadmap",
-    "version": "Requirements v0.3",
-    "currentState": "The private roadmap, authenticated Manager boundary, and Realtime voice flow are deployed. Voice reached OpenAI's SDP exchange and is temporarily quota-blocked; the API-free Social Agent foundation is now tested.",
-    "nextFocus": "Extend the Social Agent foundation with client brand-profile validation and content-calendar collision checks while Realtime quota resets."
+    "version": "Planning System v0.4",
+    "currentState": "The roadmap now combines operating instructions, goals, command rules, the decision ledger, a complete agent-planning standard, and a stage-gated project-management workflow. Existing implementation remains local and unchanged except for this planning UI.",
+    "nextFocus": "Complete the 12-field blueprint for each of the ten AI agents, starting with Aims Captain (Manager), then freeze cross-agent handoffs and the shared project lifecycle before further specialist coding."
   },
   "stats": [
     {
@@ -388,9 +388,9 @@
       "mode": "freeze",
       "status": "active",
       "progress": 58,
-      "summary": "Turn this dashboard into the shared source for roadmap, requirements, tasks, and decisions. Manager Agent lifecycle, approval rules, local persistence shape, and routing/approval eval expectations are now frozen.",
-      "todo": "Keep new scope behind Decisions Board before specialist agents are built.",
-      "statusAction": "Next: keep decisions tight while moving into specialist MVP work."
+      "summary": "Use one operating-plan area for instructions, goals, decisions, agent blueprints, project workflow, requirements, tasks, and evidence. The planning schema and approval rules are defined; detailed per-agent blueprints remain to be completed.",
+      "todo": "Complete and review all ten agent blueprints, then freeze shared handoffs, data contracts, and definition-of-done rules.",
+      "statusAction": "Next: fully specify Aims Captain using the 12-field blueprint, then repeat in dependency order for every specialist agent."
     },
     {
       "number": "02",
@@ -544,20 +544,118 @@
     }
   ],
   "workRound": {
-    "title": "Instructions",
+    "title": "AiMS Operating Plan & Instructions",
+    "purpose": "Keep goals, agreed operating rules, agent blueprints, project workflow, and the decision ledger in one living planning area. Every discussion that changes scope, priority, permissions, architecture, or completion criteria must be reflected here before dependent implementation continues.",
+    "goals": [
+      "Build AiMS as a safe agency operating system in which a Manager Agent coordinates specialist agents, shared context, approvals, schedules, and auditable work.",
+      "Plan every agent completely before granting tools or production access: purpose, inputs, outputs, authority, workflow, quality gates, metrics, risks, and rollout must be explicit.",
+      "Use one roadmap as the source of truth for decisions, priorities, progress, dependencies, blockers, and the next focused work package.",
+      "Keep consequential actions human-approved and privileged credentials server-side; begin integrations read-only wherever practical.",
+      "Deliver in small verified increments, keep changes local by default, and deploy only when the owner explicitly says `deploy aim`."
+    ],
+    "commands": [
+      {
+        "command": "do next focus",
+        "action": "Complete only the highest-priority established roadmap item, verify it, update this plan, and leave changes local."
+      },
+      {
+        "command": "plan next focus",
+        "action": "Define the next work package, acceptance criteria, dependencies, and checks without implementing it."
+      },
+      {
+        "command": "check aim",
+        "action": "Run relevant health checks and report findings without making fixes."
+      },
+      {
+        "command": "review aim",
+        "action": "Review local changes for defects, security, regressions, and missing tests before further work."
+      },
+      {
+        "command": "status aim",
+        "action": "Report current progress, local changes, blockers, decisions needed, and the recommended next focus."
+      },
+      {
+        "command": "deploy aim",
+        "action": "After final review and passing checks, commit the intended local changes and push them to GitHub. This is the only deployment trigger."
+      }
+    ],
     "triggerModes": [
-      "Direct request: complete the requested roadmap or implementation task, even if it changes scope.",
-      "Next focus request: find the active nextFocus item, complete the highest-priority work it implies, then update roadmap state."
+      "Discussion or decision: update the instructions, decision ledger, goals, agent plan, dependencies, or acceptance criteria affected by the conversation.",
+      "Direct work request: complete the smallest coherent requested package, verify it, and synchronize roadmap state without committing or pushing.",
+      "Next-focus request: use nextFocus, priority, dependencies, and decided scope to complete one highest-value package, then stop.",
+      "Deployment request: act only when the owner says the exact command `deploy aim`; failed checks stop deployment."
     ],
     "steps": [
-      "Read roadmap.json and current repository state.",
-      "Identify next focus by nextFocus=true, priority, statusAction, and Decisions Board state.",
-      "Implement the smallest useful work package.",
-      "Run build and browser checks until clean.",
-      "Update agent progress, phase progress, status, decisions, and the nextFocus item.",
-      "Commit and push to GitHub for deployment."
+      "Read the operating plan, decision ledger, relevant agent blueprint, roadmap state, and repository state.",
+      "Classify new discussion points as a goal, decided rule, suggestion, pending decision, requirement, dependency, risk, or task and update the roadmap accordingly.",
+      "Select one focus with a clear owner, scope, deliverable, dependencies, acceptance criteria, and verification plan.",
+      "Implement only when requested; preserve unrelated work and stop at approval boundaries.",
+      "Verify the result with targeted tests, build checks, security review, and browser validation as applicable.",
+      "Update agent and phase progress, decisions, blockers, evidence, and exactly one recommended next focus.",
+      "Report locally completed work. Do not commit or push unless the owner separately says `deploy aim`."
     ],
-    "lastCompleted": "Completed hosted roadmap storage, moved next-focus tracking into Roadmap Phases, added section completion totals, and implemented the protected version-checked roadmap API boundary."
+    "agentPlanningFields": [
+      "Identity, business purpose, owner, and measurable outcome",
+      "Users, trigger events, supported requests, and exclusions",
+      "Required inputs, client context, memory, and data freshness",
+      "Outputs, schemas, templates, storage location, and retention",
+      "Tools and integrations with read, draft, write, publish, and admin permissions",
+      "Step-by-step happy path plus alternate, retry, timeout, and failure paths",
+      "Human approval gates, approvers, expiry, cancellation, and escalation",
+      "Handoffs to Manager, QA, and other specialist agents",
+      "Quality rubric, factual checks, brand checks, safety policy, and eval cases",
+      "KPIs, service levels, cost limits, observability, and audit-log fields",
+      "Security, privacy, credentials, tenant isolation, and data-deletion rules",
+      "MVP boundary, dependencies, rollout stages, test fixtures, and definition of done"
+    ],
+    "projectWorkflow": [
+      {
+        "stage": "1. Intake",
+        "outcome": "Convert discussion into a problem statement, desired outcome, stakeholders, constraints, and evidence.",
+        "exitCriteria": "Owner and success condition are clear; unknowns are recorded instead of assumed."
+      },
+      {
+        "stage": "2. Decide",
+        "outcome": "Record architecture, scope, permission, priority, and product decisions in the decision ledger.",
+        "exitCriteria": "Blocking choices are decided or explicitly marked pending with an owner and dependency."
+      },
+      {
+        "stage": "3. Design",
+        "outcome": "Complete the agent blueprint, workflow states, data contracts, approval gates, risks, and acceptance criteria.",
+        "exitCriteria": "The work can be implemented and tested without inventing material behavior."
+      },
+      {
+        "stage": "4. Plan",
+        "outcome": "Break delivery into dependency-ordered focus packages with one owner and one verifiable result each.",
+        "exitCriteria": "The next focus is unambiguous, bounded, unblocked, and has a verification plan."
+      },
+      {
+        "stage": "5. Build",
+        "outcome": "Implement the smallest useful vertical slice while preserving security and approval boundaries.",
+        "exitCriteria": "Code and documentation satisfy the focus acceptance criteria locally."
+      },
+      {
+        "stage": "6. Verify",
+        "outcome": "Run automated checks, scenario/eval cases, security review, and user-visible validation where applicable.",
+        "exitCriteria": "Evidence is recorded; failures are fixed or the item remains blocked/in process."
+      },
+      {
+        "stage": "7. Review",
+        "outcome": "Confirm scope, quality, progress, risks, decisions, and the next focus with the owner.",
+        "exitCriteria": "Owner accepts the result or feedback is converted into a new bounded focus."
+      },
+      {
+        "stage": "8. Deploy",
+        "outcome": "Commit and push only under `deploy aim`, then verify the resulting deployment and record evidence.",
+        "exitCriteria": "Checks pass, intended files only are committed, deployment is healthy, and rollback is understood."
+      },
+      {
+        "stage": "9. Operate",
+        "outcome": "Monitor quality, cost, failures, approvals, security, and business KPIs; feed learning back into planning.",
+        "exitCriteria": "Recurring ownership, alerts, review cadence, and improvement backlog are active."
+      }
+    ],
+    "lastCompleted": "Converted the long roadmap into a compact four-page workspace with global Manager commands, an actionable overview, focused AI Team and Delivery pages, and a unified Operating Plan with workflows and decisions."
   },
   "managerControlPlane": {
     "sectionProgress": {
@@ -628,6 +726,11 @@
     ]
   },
   "decisions": [
+    {
+      "label": "Workspace information architecture",
+      "status": "decided",
+      "detail": "Decided. Use four compact workspace pages: Overview for current focus and health, AI Team for agent blueprints and authority, Delivery for phases and technology, and Operating Plan for instructions, workflows, commands, and decisions. Keep the Manager command bar globally available."
+    },
     {
       "label": "CRM choice",
       "status": "pending",

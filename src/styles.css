@@ -72,6 +72,42 @@ select {
     @apply mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 lg:px-6;
   }
 
+  .workspace-page { @apply grid gap-4; }
+
+  .workspace-nav {
+    @apply sticky top-2 z-30 grid grid-cols-4 gap-1 p-1.5 backdrop-blur-xl;
+    background: color-mix(in srgb, var(--panel) 92%, transparent);
+  }
+
+  .workspace-nav-item {
+    @apply flex min-w-0 items-center justify-center gap-2 rounded-md border border-transparent px-2 py-2 text-left text-[var(--muted)] transition hover:bg-[var(--hover)] hover:text-[var(--text)] sm:justify-start sm:px-3;
+  }
+
+  .workspace-nav-active { @apply border-mint/30 bg-mint/10 text-mint; }
+  .workspace-nav-icon { @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--subtle)]; }
+  .workspace-nav-copy { @apply hidden min-w-0 sm:grid; }
+  .workspace-nav-copy strong { @apply truncate text-[12px] font-medium; }
+  .workspace-nav-copy small { @apply hidden truncate text-[10px] font-normal text-[var(--muted)] lg:block; }
+
+  .overview-grid { @apply grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)]; }
+  .focus-card { @apply relative grid min-h-72 content-between gap-5 overflow-hidden p-5 sm:p-7; }
+  .focus-card::after { content: ""; @apply pointer-events-none absolute right-0 -top-20 h-64 w-64 rounded-full bg-mint/10 blur-3xl; }
+  .focus-kicker { @apply relative z-10 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-mint; }
+  .focus-card h2 { @apply relative z-10 m-0 max-w-3xl text-[24px] font-medium leading-tight sm:text-[32px]; }
+  .focus-card p { @apply relative z-10 m-0 max-w-3xl text-[13px] leading-6 text-[var(--muted)]; }
+  .focus-action { @apply relative z-10 flex w-fit items-center gap-2 rounded-md bg-mint px-3 py-2 text-[12px] font-medium text-ink transition hover:opacity-90; }
+  .focus-arrow { @apply -rotate-90; }
+  .overview-side { @apply grid gap-4; }
+  .snapshot-card { @apply grid content-start gap-3 p-4; }
+  .snapshot-line { @apply grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-md border border-[var(--line)] bg-[var(--subtle)] p-3; }
+  .snapshot-line > div { @apply grid min-w-0 gap-1; }
+  .snapshot-line strong { @apply text-[13px] font-medium; }
+  .snapshot-line div span { @apply line-clamp-2 text-[11px] leading-4 text-[var(--muted)]; }
+  .governance-card { @apply grid grid-cols-2 gap-3 p-4; }
+  .governance-card > div { @apply grid gap-1 rounded-md bg-[var(--subtle)] p-3; }
+  .governance-card > div strong { @apply text-[20px] font-medium; }
+  .governance-card button { @apply col-span-2 rounded-md border border-[var(--line)] bg-[var(--panel-strong)] px-3 py-2 text-[12px] font-medium text-[var(--text)] hover:border-mint; }
+
   .card {
     @apply overflow-visible rounded-lg border border-[var(--line)] bg-[var(--panel)] shadow-soft;
   }
@@ -463,6 +499,25 @@ select {
   .instructions-content {
     @apply mt-3 grid gap-4;
   }
+
+  .instruction-intro,
+  .instruction-panel {
+    @apply grid gap-3 rounded-md border border-[var(--line)] bg-[var(--subtle)] p-4;
+  }
+
+  .instruction-intro p { @apply m-0 max-w-4xl leading-6; }
+  .instruction-grid { @apply grid gap-3 lg:grid-cols-2; }
+  .instruction-panel .stack-list { @apply m-0; }
+  .instruction-panel .stack-list li { @apply rounded-md border border-[var(--line)] bg-[var(--panel)] px-3 py-2 text-[13px] leading-5 text-[var(--muted)]; }
+  .command-list { @apply grid gap-2; }
+  .command-item { @apply grid gap-1 rounded-md border border-[var(--line)] bg-[var(--panel)] px-3 py-2 sm:grid-cols-[130px_1fr] sm:items-start; }
+  .command-item code { @apply text-[12px] font-medium text-mint; }
+  .planning-field-grid { @apply grid gap-2 sm:grid-cols-2 lg:grid-cols-3; }
+  .planning-field { @apply flex items-start gap-2 rounded-md border border-[var(--line)] bg-[var(--panel)] px-3 py-2 text-[13px] leading-5; }
+  .planning-field > span { @apply text-[11px] font-medium text-mint; }
+  .workflow-table { @apply overflow-hidden rounded-md border border-[var(--line)]; }
+  .workflow-row { @apply grid gap-2 border-t border-[var(--line)] bg-[var(--panel)] px-3 py-3 text-[13px] first:border-t-0 md:grid-cols-[140px_1fr_1fr]; }
+  .workflow-head { @apply hidden bg-[var(--panel-strong)] text-[11px] font-medium uppercase tracking-wide text-[var(--muted)] md:grid; }
 
   .status-legend-block {
     @apply grid gap-2;
