@@ -3,8 +3,8 @@
     "projectName": "AiM",
     "subtitle": "Roadmap",
     "version": "Requirements v0.3",
-    "currentState": "The roadmap is private behind Supabase login, the production Roadmap and Manager endpoints are configured and reject unauthenticated requests, and the owner control bar is available after sign-in.",
-    "nextFocus": "Run an authenticated production microphone smoke test for the recovered Realtime WebRTC flow, then record the result and any browser-specific issues."
+    "currentState": "The private roadmap, authenticated Manager boundary, and Realtime voice flow are deployed. Voice reached OpenAI's SDP exchange and is temporarily quota-blocked; the API-free Social Agent foundation is now tested.",
+    "nextFocus": "Extend the Social Agent foundation with client brand-profile validation and content-calendar collision checks while Realtime quota resets."
   },
   "stats": [
     {
@@ -226,19 +226,19 @@
         "Voice rules"
       ],
       "todos": [
-        "Build content calendar schema",
-        "Define post status flow",
-        "Create caption rubric"
+        "Add client brand-profile validation",
+        "Detect schedule collisions per platform and timezone",
+        "Create approval-ready draft fixtures"
       ],
       "risks": [
         "Publishing without approval",
         "Tone mismatch across clients"
       ],
-      "progress": 6,
-      "status": "pending",
-      "statusAction": "Prepare as the first specialist after Manager because it gives fast agency value.",
+      "progress": 32,
+      "status": "in process",
+      "statusAction": "Content schema, approval-gated lifecycle, and caption rubric are tested; add brand context and calendar validation next.",
       "priority": "P0",
-      "nextFocus": false
+      "nextFocus": true
     },
     {
       "id": "sales",
@@ -407,10 +407,10 @@
       "title": "Agent MVP",
       "mode": "build",
       "status": "in process",
-      "progress": 24,
-      "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates. Manager local MVP is ready; Social and Sales remain pending.",
-      "todo": "Run live Manager smoke test when quota is unblocked, then start Social Agent MVP.",
-      "statusAction": "Manager is locally ready; next specialist candidate is Social."
+      "progress": 32,
+      "summary": "Ship Manager, Social Market, and Sales agents with tool calls and approval gates. Manager is ready, and Social now has a tested content schema, approval-gated lifecycle, and caption rubric.",
+      "todo": "Add Social client brand-profile validation and calendar collision checks; resume live Realtime verification when quota resets.",
+      "statusAction": "Social is the active API-free specialist build while live OpenAI checks are quota-blocked."
     },
     {
       "number": "04",
