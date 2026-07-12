@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
 import type { Root } from "react-dom/client";
 import type { Session } from "@supabase/supabase-js";
@@ -37,6 +37,7 @@ import "./styles.css";
 
 type Theme = "dark" | "light";
 
+<<<<<<< HEAD
 type SpeechRecognitionEventLike = Event & {
   results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }>;
 };
@@ -53,6 +54,25 @@ type SpeechRecognitionLike = {
 };
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+=======
+type RealtimeEvent = {
+  type: string;
+  delta?: string;
+  transcript?: string;
+  error?: { message?: string };
+};
+
+type VoiceSession = {
+  peer: RTCPeerConnection;
+  channel: RTCDataChannel;
+  stream: MediaStream;
+  audio: HTMLAudioElement;
+  transcript: string;
+  finishTimer?: number;
+};
+
+const consequentialCommand = /\b(send|publish|post|deploy|delete|remove|approve|schedule|email|message|pay|purchase|buy|change\s+(?:the\s+)?(?:budget|price)|edit\s+production)\b/i;
+>>>>>>> 98822ab20f79c015f9f387cf01c99d6b4e2e19c0
 
 declare global {
   interface Window {
@@ -327,7 +347,13 @@ function App() {
   const [managerRuns, setManagerRuns] = useState<ManagerRun[]>([]);
   const [managerRequest, setManagerRequest] = useState("");
   const [voiceListening, setVoiceListening] = useState(false);
+<<<<<<< HEAD
   const [speechRecognition, setSpeechRecognition] = useState<SpeechRecognitionLike | null>(null);
+=======
+  const [confirmationRequired, setConfirmationRequired] = useState(false);
+  const voiceSessionRef = useRef<VoiceSession | null>(null);
+  const voiceStopRequestedRef = useRef(false);
+>>>>>>> 98822ab20f79c015f9f387cf01c99d6b4e2e19c0
 
   const agents = roadmapData.agents as Agent[];
   const phases = roadmapData.phases as Phase[];
@@ -423,12 +449,17 @@ function App() {
   const runManagerDraft = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!ownerSession) return;
+    if (confirmationRequired && !window.confirm("This command may cause an external or production change. Confirm that you want the Manager to route it through the normal approval workflow.")) {
+      setOwnerMessage("Consequential command was not sent. Edit it or confirm when you are ready.");
+      return;
+    }
     setOwnerBusy(true);
     setOwnerMessage("");
     try {
       const run = await createOnlineManagerRun<ManagerRun>(managerRequest.trim(), ownerSession.access_token);
       setManagerRuns((current) => [run, ...current.filter((item) => item.run_id !== run.run_id)].slice(0, 20));
       setManagerRequest("");
+      setConfirmationRequired(false);
       setOwnerMessage(`Manager routed the request to ${run.agent}; status: ${run.status}.`);
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
@@ -452,6 +483,7 @@ function App() {
     setExpandedPhases((current) => (current.includes(number) ? current.filter((item) => item !== number) : [...current, number]));
   };
 
+<<<<<<< HEAD
   const startVoiceCommand = async () => {
     if (!ownerSession || voiceListening) return;
     try {
@@ -520,6 +552,106 @@ function App() {
     return <main data-theme={theme} className="app-shell auth-shell"><div className="auth-loading">Loading secure roadmap…{ownerMessage ? ` ${ownerMessage}` : ""}</div></main>;
   }
 
+=======
+  const closeVoiceSession = (message?: string) => {
+    const session = voiceSessionRef.current;
+    if (session) {
+      if (session.finishTimer) window.clearTimeout(session.finishTimer);
+      session.stream.getTracks().forEach((track) => track.stop());
+      session.channel.close();
+      session.peer.close();
+      session.audio.pause();
+      session.audio.srcObject = null;
+      voiceSessionRef.current = null;
+    }
+    setVoiceListening(false);
+    if (message) setOwnerMessage(message);
+  };
+
+  const acceptVoiceTranscript = (transcript: string) => {
+    const command = transcript.trim();
+    if (!command) {
+      closeVoiceSession("No speech was detected. Hold the button and try again, or type your command.");
+      return;
+    }
+    setManagerRequest(command);
+    const needsConfirmation = consequentialCommand.test(command);
+    setConfirmationRequired(needsConfirmation);
+    closeVoiceSession(needsConfirmation
+      ? "Voice command transcribed. Review it carefully; explicit confirmation is required before sending."
+      : "Voice command transcribed. Review it, then send when ready.");
+  };
+
+  const startVoiceCommand = async () => {
+    if (!ownerSession || voiceListening) return;
+    voiceStopRequestedRef.current = false;
+    setManagerRequest("");
+    setConfirmationRequired(false);
+    setVoiceListening(true);
+    setOwnerMessage("Opening a secure Realtime voice session…");
+
+    try {
+      const realtimeSecret = await createRealtimeClientSecret(ownerSession.access_token);
+      if (!realtimeSecret.value) throw new Error("The Realtime API did not return a client secret.");
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (voiceStopRequestedRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        setVoiceListening(false);
+        return;
+      }
+
+      const peer = new RTCPeerConnection();
+      const audio = new Audio();
+      audio.autoplay = true;
+      peer.ontrack = (event) => { audio.srcObject = event.streams[0]; };
+      stream.getTracks().forEach((track) => peer.addTrack(track, stream));
+      const channel = peer.createDataChannel("oai-events");
+      const session: VoiceSession = { peer, channel, stream, audio, transcript: "" };
+      voiceSessionRef.current = session;
+
+      channel.onopen = () => {
+        if (voiceStopRequestedRef.current) channel.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
+        else setOwnerMessage("Secure Realtime session connected. Listening while you hold the button.");
+      };
+      channel.onmessage = (message) => {
+        const realtimeEvent = JSON.parse(message.data) as RealtimeEvent;
+        if (realtimeEvent.type === "conversation.item.input_audio_transcription.delta" && realtimeEvent.delta) {
+          session.transcript += realtimeEvent.delta;
+          setManagerRequest(session.transcript.trimStart());
+        }
+        if (realtimeEvent.type === "conversation.item.input_audio_transcription.completed") acceptVoiceTranscript(realtimeEvent.transcript ?? session.transcript);
+        if (realtimeEvent.type === "error") closeVoiceSession(realtimeEvent.error?.message ?? "Realtime voice transcription failed.");
+      };
+      channel.onerror = () => closeVoiceSession("The secure Realtime voice connection failed. Try again or type your command.");
+      peer.onconnectionstatechange = () => {
+        if (["failed", "disconnected"].includes(peer.connectionState)) closeVoiceSession("The Realtime voice connection was interrupted.");
+      };
+
+      const offer = await peer.createOffer();
+      await peer.setLocalDescription(offer);
+      const answerResponse = await fetch("https://api.openai.com/v1/realtime/calls", {
+        method: "POST",
+        headers: { authorization: `Bearer ${realtimeSecret.value}`, "content-type": "application/sdp" },
+        body: offer.sdp,
+      });
+      if (!answerResponse.ok) throw new Error("The secure Realtime WebRTC call could not be established.");
+      await peer.setRemoteDescription({ type: "answer", sdp: await answerResponse.text() });
+    } catch (error) {
+      closeVoiceSession(error instanceof Error ? error.message : "Realtime voice session could not be created.");
+    }
+  };
+
+  const stopVoiceCommand = () => {
+    voiceStopRequestedRef.current = true;
+    const session = voiceSessionRef.current;
+    if (!session) return;
+    session.stream.getAudioTracks().forEach((track) => { track.enabled = false; });
+    if (session.channel.readyState === "open") session.channel.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
+    setOwnerMessage("Finishing the Realtime transcript…");
+    session.finishTimer = window.setTimeout(() => acceptVoiceTranscript(session.transcript), 5000);
+  };
+
+>>>>>>> 98822ab20f79c015f9f387cf01c99d6b4e2e19c0
   return (
     <main data-theme={theme} className="app-shell">
       <div className="page">
@@ -596,6 +728,43 @@ function App() {
                       Sign out
                     </button>
                   </div>
+<<<<<<< HEAD
+=======
+                  <form className="admin-login-form" onSubmit={runManagerDraft}>
+                    <label className="admin-field">
+                      <span>Manager request</span>
+                      <textarea
+                        className="owner-input owner-textarea"
+                        maxLength={4000}
+                        onChange={(event) => {
+                          setManagerRequest(event.target.value);
+                          setConfirmationRequired(consequentialCommand.test(event.target.value));
+                        }}
+                        placeholder="Create an internal task draft…"
+                        required
+                        value={managerRequest}
+                      />
+                    </label>
+                    <div className="owner-actions">
+                      <button className="owner-button" disabled={ownerBusy || voiceListening || !managerRequest.trim()} type="submit">
+                        <Send className="icon-small" />
+                        {ownerBusy ? "Working…" : confirmationRequired ? "Confirm & run" : "Run safe draft"}
+                      </button>
+                      <button
+                        aria-label="Hold to talk"
+                        className={`owner-button owner-button-muted ${voiceListening ? "icon-button-active" : ""}`}
+                        disabled={ownerBusy}
+                        onPointerDown={startVoiceCommand}
+                        onPointerLeave={stopVoiceCommand}
+                        onPointerUp={stopVoiceCommand}
+                        type="button"
+                      >
+                        <Mic className="icon-small" />
+                        {voiceListening ? "Listening…" : "Hold to talk"}
+                      </button>
+                    </div>
+                  </form>
+>>>>>>> 98822ab20f79c015f9f387cf01c99d6b4e2e19c0
                 </>
               ) : (
                 <form className="admin-login-form" onSubmit={signInOwner}>

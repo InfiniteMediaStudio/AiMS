@@ -101,7 +101,10 @@ export async function createOnlineManagerRun<T>(request: string, accessToken: st
 
 export async function createRealtimeClientSecret(accessToken: string) {
   const response = await fetch("/api/realtime", { method: "POST", headers: { authorization: `Bearer ${accessToken}` } });
+<<<<<<< HEAD
   if (!response.headers.get("content-type")?.includes("application/json")) return null;
+=======
+>>>>>>> 98822ab20f79c015f9f387cf01c99d6b4e2e19c0
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.error ?? "Realtime voice session could not be created.");
   return payload as { value: string; expires_at: number };
