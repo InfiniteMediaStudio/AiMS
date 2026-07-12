@@ -541,8 +541,18 @@ function App() {
         headers: { authorization: `Bearer ${realtimeSecret.value}`, "content-type": "application/sdp" },
         body: offer.sdp,
       });
-      if (!answerResponse.ok) throw new Error("The secure Realtime WebRTC call could not be established.");
-      await peer.setRemoteDescription({ type: "answer", sdp: await answerResponse.text() });
+      const answerBody = await answerResponse.text();
+      if (!answerResponse.ok) {
+        let detail = `OpenAI returned HTTP ${answerResponse.status}.`;
+        try {
+          const payload = JSON.parse(answerBody) as { error?: { message?: string } };
+          if (payload.error?.message) detail = payload.error.message;
+        } catch {
+          // Keep the status-only message when the upstream response is not JSON.
+        }
+        throw new Error(`The secure Realtime WebRTC call could not be established: ${detail}`);
+      }
+      await peer.setRemoteDescription({ type: "answer", sdp: answerBody });
     } catch (error) {
       closeVoiceSession(error instanceof Error ? error.message : "Realtime voice session could not be created.");
     }
